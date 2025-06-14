@@ -1,16 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useState } from "react";
-
-const generateRandomSeed = () => {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  const newSeed = Array.from({ length: 4 }, () =>
-    characters.charAt(Math.floor(Math.random() * characters.length))
-  ).join("");
-  console.log(newSeed);
-  return newSeed;
-};
+import VibeRandomizer from "@/components/VibeRandomizer";
 
 export default function GameScreen() {
   const router = useRouter();
@@ -23,27 +14,13 @@ export default function GameScreen() {
       </header>
 
       <div className='flex flex-col items-center justify-center p-4 mt-24'>
-        <div className='flex items-center gap-4 flex-col'>
-          <Image
-            className='rounded-2xl shadow-lg'
-            src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${seed}`}
-            alt='logo'
-            width={100}
-            height={100}
-          />
-          <button
-            onClick={() => setSeed(generateRandomSeed())}
-            className='bg-[#2e9ca9] text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-[#25808a] transition-colors'
-          >
-            Randomize
-          </button>
-        </div>
+        <VibeRandomizer initialSeed={seed} onSeedChange={setSeed} />
       </div>
       <div className='flex flex-col items-center justify-center px-4'>
         <input
           type='text'
-          placeholder='your name'
-          className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400 lowercase text-center'
+          placeholder='Your name'
+          className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400 text-center'
         />
       </div>
 
@@ -59,7 +36,7 @@ export default function GameScreen() {
           }}
           className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
         >
-          Create Room
+          Create room
         </button>
       </div>
     </div>
