@@ -3,7 +3,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useState, useEffect } from "react";
-import { ref, get, onValue, off } from "firebase/database";
+import { ref, get, onValue, off, remove, update } from "firebase/database";
 import { database } from "@/firebase";
 
 export default function GameScreen() {
@@ -14,6 +14,7 @@ export default function GameScreen() {
     Record<string, { name: string; vibe: string }>
   >({});
   const [host, setHost] = useState<string>("");
+
   useEffect(() => {
     const roomRef = ref(database, `samevibes/rooms/${room}`);
 
@@ -24,12 +25,34 @@ export default function GameScreen() {
         const data = snapshot.val();
         setPlayers(data.players || {});
         setHost(data.host || "");
+
+        // // Mark player as not disconnected when they join
+        // const playerName = localStorage.getItem("samevibes-name");
+        // if (playerName) {
+        //   const playerRef = ref(
+        //     database,
+        //     `samevibes/rooms/${room}/players/${playerName}`
+        //   );
+        //   update(playerRef, {
+        //     disconnected: false,
+        //   });
+        // }
       }
     });
 
-    // Cleanup subscription on unmount
+    // Cleanup subscription and update player status on unmount
     return () => {
       off(roomRef);
+      // const playerName = localStorage.getItem("samevibes-name");
+      // if (playerName) {
+      //   const playerRef = ref(
+      //     database,
+      //     `samevibes/rooms/${room}/players/${playerName}`
+      //   );
+      //   update(playerRef, {
+      //     disconnected: true,
+      //   });
+      // }
     };
   }, [room]);
 
@@ -69,18 +92,19 @@ export default function GameScreen() {
             <p className='text-sm text-[#2e9ca9] font-semibold'>Players</p>
             <div className='flex flex-col items-center justify-center py-4 gap-2 grid grid-cols-4'>
               {Object.entries(players).map(([playerId, player]) => (
-                <div
-                  key={playerId}
-                  className='flex flex-col items-center gap-2'
-                >
+                <div key={playerId} className={`flex flex-col items-center`}>
                   <Image
-                    className='rounded-xl'
+                    className={`rounded-xl ${
+                      player.name === localStorage.getItem("samevibes-name")
+                        ? "ring-4 ring-black rounded-xl"
+                        : ""
+                    }`}
                     src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${player.vibe}`}
                     alt={`${player.name}'s vibe`}
                     width={80}
                     height={380}
                   />
-                  <p className='text-xl text-[#2e9ca9] font-semibold'>
+                  <p className='text-lg text-[#2e9ca9] font-semibold'>
                     {player.name}
                   </p>
                 </div>
