@@ -1,10 +1,11 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useState, useEffect } from "react";
-import { ref, get, onValue, off, remove, update } from "firebase/database";
+import { ref, onValue, off } from "firebase/database";
 import { database } from "@/firebase";
+import MissionScreen from "@/app/components/MissionScreen";
+import { generateMissions } from "@/app/data/missions";
+import type { Mission } from "@/app/data/missions";
 
 export default function GameScreen() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function GameScreen() {
     Record<string, { name: string; vibe: string }>
   >({});
   const [host, setHost] = useState<string>("");
+  const [currentMissionIndex, setCurrentMissionIndex] = useState(0);
+  const [missions, setMissions] = useState<Mission[]>([]);
 
   useEffect(() => {
     const roomRef = ref(database, `samevibes/rooms/${room}`);
@@ -25,6 +28,9 @@ export default function GameScreen() {
         const data = snapshot.val();
         setPlayers(data.players || {});
         setHost(data.host || "");
+
+        // Generate missions when players are updated
+        setMissions(generateMissions(data.players || {}));
       }
     });
 
@@ -61,46 +67,16 @@ export default function GameScreen() {
       <header className='flex bg-[#2e9ca9] text-white py-4 text-xl font-semibold items-center p-4'>
         <div className='text-sm w-1/3'>Phase 1</div>
         <div className='text-xl font-semibold w-1/3 text-center'>samevibes</div>
+        <div className='text-sm w-1/3 text-right'>
+          {currentMissionIndex + 1}/{missions.length}
+        </div>
       </header>
-
-      <main className='max-w-md mx-auto p-6 space-y-6'>
-        {/* Mission */}
-        <div>
-          <h2 className='font-bold text-lg'>Mission:</h2>
-          <p>Hit yourself and Sophia, but not Yipin</p>
-        </div>
-
-        <hr className='border-t border-[#2e9ca9]' />
-
-        {/* Prompt */}
-        <div>
-          <h3 className='font-semibold text-md'>
-            What do you all have in common?
-          </h3>
-          <p className='text-sm text-gray-600'>They have learned this…</p>
-        </div>
-
-        {/* Answer input */}
-        <input
-          type='text'
-          placeholder='A language or musical instrument'
-          className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400'
-        />
-
-        {/* People targets */}
-        <div className='space-y-2'>
-          <div className='w-full border border-gray-300 rounded-md p-3 bg-white'>
-            Yourself
-          </div>
-          <div className='w-full border border-gray-300 rounded-md p-3 bg-white'>
-            Sophia
-          </div>
-          <div className='w-full border border-gray-300 rounded-md p-3 bg-white flex justify-between items-center'>
-            <span>Yipin</span>
-            <span className='text-red-500 text-xl'>🚫</span>
-          </div>
-        </div>
-      </main>
+      <MissionScreen
+        missions={missions}
+        currentMissionIndex={currentMissionIndex}
+        onMissionChange={setCurrentMissionIndex}
+        players={players}
+      />
     </div>
   );
 }

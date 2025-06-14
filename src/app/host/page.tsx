@@ -24,8 +24,9 @@ export default function GameScreen() {
           type='text'
           placeholder='Your name'
           value={name}
-          onChange={(e) => setName(e.target.value)}
-          className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400 text-center'
+          onChange={(e) => setName(e.target.value.toUpperCase())}
+          className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400 text-center 
+          [&:not(:placeholder-shown)]:uppercase'
         />
       </div>
 
