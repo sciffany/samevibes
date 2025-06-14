@@ -4,77 +4,49 @@ export interface Target {
   vibe: string;
 }
 
-export interface Mission {
-  id: number;
-  title: string;
-  missionString: string;
-  description: string;
+export interface DescriptionTemplate {
   prompt: string;
-  hint: string;
-  placeholder: string;
-  targets: Target[];
+  level1: string;
+  level2: string;
 }
 
-// Mission templates that can be used to generate dynamic missions
-const missionTemplates = [
+export interface Mission {
+  id: number;
+  targets: Target[];
+  missionString: string;
+  descriptionTemplate: DescriptionTemplate;
+}
+
+const descriptionTemplates: DescriptionTemplate[] = [
   {
-    title: "Common Ground",
-    prompt: "What do you all have in common?",
-    hint: "Think about shared experiences or interests...",
-    placeholder: "A shared experience or interest",
-    generateDescription: (
-      players: Record<string, { name: string; vibe: string }>
-    ) => {
-      const playerNames = Object.values(players).map((p) => p.name);
-      return `Find something that ${playerNames.join(", ")} all share`;
-    },
+    prompt: "has/have learned this",
+    level1: "a language besides English",
+    level2: "musical instrument",
   },
   {
-    title: "Secret Talent",
-    prompt: "What's your secret talent?",
-    hint: "Something you're good at...",
-    placeholder: "A skill or hobby",
-    generateDescription: (
-      players: Record<string, { name: string; vibe: string }>
-    ) => {
-      const playerNames = Object.values(players).map((p) => p.name);
-      return `Share a talent that ${playerNames.join(
-        ", "
-      )} might not know about`;
-    },
+    prompt: "has/have done this",
+    level1: "a sport",
+    level2: "a water sport",
   },
   {
-    title: "Future Plans",
-    prompt: "Where do you see yourself in 5 years?",
-    hint: "Think about your goals and aspirations...",
-    placeholder: "Your future goals",
-    generateDescription: (
-      players: Record<string, { name: string; vibe: string }>
-    ) => {
-      return "Share your vision for the future";
-    },
+    prompt: "has/have been to",
+    level1: "a city",
+    level2: "a concert",
   },
   {
-    title: "Favorite Memory",
-    prompt: "What's your favorite memory from this year?",
-    hint: "Think about a special moment or achievement...",
-    placeholder: "A memorable experience",
-    generateDescription: (
-      players: Record<string, { name: string; vibe: string }>
-    ) => {
-      return "Share a special moment that made this year memorable";
-    },
+    prompt: "has/have had this",
+    level1: "lost item",
+    level2: "faux pas",
   },
   {
-    title: "Dream Vacation",
-    prompt: "If you could go anywhere in the world, where would it be?",
-    hint: "Think about places you've always wanted to visit...",
-    placeholder: "A dream destination",
-    generateDescription: (
-      players: Record<string, { name: string; vibe: string }>
-    ) => {
-      return "Share your dream travel destination";
-    },
+    prompt: "has/have ever had a date",
+    level1: "with an attribute of a person",
+    level2: "in a place",
+  },
+  {
+    prompt: "would pay 1000 dollars for",
+    level1: "valuable item",
+    level2: "a desire",
   },
 ];
 
@@ -88,12 +60,29 @@ const NUM_MISSIONS = 2;
 export function generateMissions(
   players: Record<string, { name: string; vibe: string }>
 ): Mission[] {
+  // Generate NUM_MISSIONS random numbers between 1 and 2^n - 1 where n is the number of players, and make sure they are different
+  const numbersFrom1To2PowerNMinus1 = Array(
+    2 ** Object.keys(players).length - 2
+  )
+    .fill(0)
+    .map((_, index) => index + 1);
+
+  const fisherYatesShuffle = <T>(array: T[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
+  const shuffledNumbers = fisherYatesShuffle(numbersFrom1To2PowerNMinus1);
+  const shuffledDescriptionTemplates = fisherYatesShuffle(descriptionTemplates);
+
   return Array(NUM_MISSIONS)
     .fill(0)
     .map((_, index) => {
       // Generate a random number between 1 and 2^n - 1 where n is the number of players
-      const randomNumber =
-        Math.floor(Math.random() * 2 ** (Object.keys(players).length - 1)) + 1;
+      const randomNumber = shuffledNumbers[index];
 
       // Convert it to binary and array of 0s and 1s
       const binaryString = randomNumber.toString(2);
@@ -128,16 +117,12 @@ export function generateMissions(
         id: index + 1,
         targets,
         missionString,
-        title: missionTemplates[index].title,
-        description: missionTemplates[index].generateDescription(players),
-        prompt: missionTemplates[index].prompt,
-        hint: missionTemplates[index].hint,
-        placeholder: missionTemplates[index].placeholder,
+        descriptionTemplate: shuffledDescriptionTemplates[index],
       };
     });
 }
 
-function joinWithAnd(array: string[]) {
+export function joinWithAnd(array: string[]) {
   return array.length > 1
     ? `${array.slice(0, -1).join(", ")} and ${array[array.length - 1]}`
     : array[0];
