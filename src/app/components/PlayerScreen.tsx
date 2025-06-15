@@ -18,7 +18,7 @@ export default function PlayerScreen({
                   ? "ring-4 ring-black rounded-xl"
                   : ""
               }`}
-              src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${player.vibe}`}
+              src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${player.vibe}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`}
               alt={`${player.name}'s vibe`}
               width={80}
               height={380}

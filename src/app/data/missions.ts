@@ -5,6 +5,8 @@ export interface Target {
 }
 
 export interface DescriptionTemplate {
+  id: number;
+  verb: string;
   prompt: string;
   level1: string;
   level2: string;
@@ -19,36 +21,64 @@ export interface Mission {
 
 const descriptionTemplates: DescriptionTemplate[] = [
   {
-    prompt: "has/have learned this",
+    id: 1,
+    verb: "have",
+    prompt: "learned",
     level1: "a language besides English",
     level2: "musical instrument",
   },
   {
-    prompt: "has/have done this",
+    id: 2,
+    verb: "have",
+    prompt: "done",
     level1: "a sport",
     level2: "a water sport",
   },
   {
-    prompt: "has/have been to",
+    id: 3,
+    verb: "have",
+    prompt: "been to",
     level1: "a city",
     level2: "a concert",
   },
   {
-    prompt: "has/have had this",
-    level1: "lost item",
-    level2: "faux pas",
+    id: 4,
+    verb: "have",
+    prompt: "had",
+    level1: "pet",
+    level2: "lost item",
   },
   {
-    prompt: "has/have ever had a date",
-    level1: "with an attribute of a person",
-    level2: "in a place",
+    id: 5,
+    verb: "have",
+    prompt: "ever had a date with/in",
+    level1: "an attribute of a person",
+    level2: "a place",
   },
   {
-    prompt: "would pay 1000 dollars for",
+    id: 6,
+    verb: "would",
+    prompt: "pay 1000 dollars for",
     level1: "valuable item",
     level2: "a desire",
   },
 ];
+
+function singularizeVerb(verb: string) {
+  if (verb === "have") {
+    return "has";
+  } else if (verb === "would") {
+    return "would";
+  }
+  return verb;
+}
+
+export function useVerbBasedOnPlayerCount(verb: string, playerCount: number) {
+  if (playerCount >= 2) {
+    return verb;
+  }
+  return singularizeVerb(verb);
+}
 
 enum TargetType {
   HIT = "hit",

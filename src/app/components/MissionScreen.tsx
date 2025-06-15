@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { joinWithAnd, Mission } from "@/app/data/missions";
+import {
+  joinWithAnd,
+  Mission,
+  useVerbBasedOnPlayerCount,
+} from "@/app/data/missions";
 import PlayerScreen from "./PlayerScreen";
 import { useParams } from "next/navigation";
-
-interface DescriptionTemplate {
-  prompt: string;
-  level1: string;
-  level2: string;
-}
 
 interface MissionScreenProps {
   missions: Mission[];
@@ -78,6 +76,11 @@ export default function MissionScreen({
             currentMission.targets
               .filter((target) => target.type === "hit")
               .map((target) => target.name)
+          )}{" "}
+          {useVerbBasedOnPlayerCount(
+            currentMission.descriptionTemplate.verb,
+            currentMission.targets.filter((target) => target.type === "hit")
+              .length
           )}{" "}
           {currentMission.descriptionTemplate.prompt}
         </h3>
