@@ -25,7 +25,6 @@ export default function RevealScreen({
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { room } = useParams();
   const router = useRouter();
-
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
 
@@ -187,16 +186,15 @@ function generateMissionRecall(missionAnswer: MissionAnswer) {
     (target) => target.type === "hit"
   );
 
+  const mission = descriptionTemplates.find(
+    (mission) => mission.id === missionAnswer.missionId
+  ) ?? { verb: "", prompt: "", level1: "", level2: "" };
+
   return `Only ${joinWithAnd(
     targetsToHit.map((target) => target.name)
-  )}  ${useVerbBasedOnPlayerCount(
-    descriptionTemplates[missionAnswer.missionId - 1].verb,
-    targetsToHit.length
-  )} ${descriptionTemplates[missionAnswer.missionId - 1].prompt} (${
-    missionAnswer.level === 1
-      ? descriptionTemplates[missionAnswer.missionId - 1].level1
-      : descriptionTemplates[missionAnswer.missionId - 1].level2
-  })`;
+  )}  ${useVerbBasedOnPlayerCount(mission?.verb, targetsToHit.length)} ${
+    mission?.prompt
+  } (${missionAnswer.level === 1 ? mission?.level1 : mission?.level2})`;
 }
 
 function generateMissionAnswerString(missionAnswer: MissionAnswer) {
@@ -204,25 +202,27 @@ function generateMissionAnswerString(missionAnswer: MissionAnswer) {
     (target) => target.type === "hit"
   );
 
+  const mission = descriptionTemplates.find(
+    (mission) => mission.id === missionAnswer.missionId
+  ) ?? { verb: "", prompt: "", level1: "", level2: "" };
+
   return `Only ${joinWithAnd(
     targetsToHit.map((target) => target.name)
-  )}  ${useVerbBasedOnPlayerCount(
-    descriptionTemplates[missionAnswer.missionId - 1].verb,
-    targetsToHit.length
-  )}  ${descriptionTemplates[missionAnswer.missionId - 1].prompt} ${
-    missionAnswer.answer
-  }`;
+  )}  ${useVerbBasedOnPlayerCount(mission?.verb, targetsToHit.length)}  ${
+    mission?.prompt
+  } ${missionAnswer.answer}`;
 }
 
 function generateHitList(missionAnswer: MissionAnswer) {
   const hitUsers = Object.keys(missionAnswer.hitUsers ?? {});
+  const mission = descriptionTemplates.find(
+    (mission) => mission.id === missionAnswer.missionId
+  ) ?? { verb: "", prompt: "", level1: "", level2: "" };
 
   return `${joinWithAnd(hitUsers)}  ${useVerbBasedOnPlayerCount(
-    descriptionTemplates[missionAnswer.missionId - 1].verb,
+    mission?.verb,
     hitUsers.length
-  )}  ${descriptionTemplates[missionAnswer.missionId - 1].prompt} ${
-    missionAnswer.answer
-  }`;
+  )}  ${mission?.prompt} ${missionAnswer.answer}`;
 }
 
 function calculateAccuracy(missionAnswer: MissionAnswer) {
