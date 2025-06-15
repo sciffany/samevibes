@@ -78,7 +78,9 @@ export default function GameScreen() {
   return (
     <div className='min-h-screen bg-[#fdfbee] text-[#0d2c40] font-sans flex flex-col'>
       <header className='flex bg-[#2e9ca9] text-white py-4 text-xl font-semibold items-center p-4'>
-        <div className='text-sm w-1/3'>Phase 1</div>
+        <div className='text-sm w-1/3'>
+          {state === "submitted" ? "Phase 1" : "Phase 2"}
+        </div>
         <div className='text-xl font-semibold w-1/3 text-center'>samevibes</div>
       </header>
 
