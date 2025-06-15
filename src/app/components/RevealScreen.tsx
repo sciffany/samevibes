@@ -31,7 +31,7 @@ export interface MissionAnswer {
   };
 }
 
-export default function MissionScreen({
+export default function RevealScreen({
   missions,
   currentMissionIndex,
   onMissionChange,

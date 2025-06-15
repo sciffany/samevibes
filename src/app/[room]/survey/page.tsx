@@ -1,16 +1,77 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ref, onValue, off } from "firebase/database";
+import { ref, onValue, off, set } from "firebase/database";
 import { database } from "@/firebase";
 import { MissionAnswer } from "@/app/components/MissionScreen";
 import { descriptionTemplates, fisherYatesShuffle } from "@/app/data/missions";
+import cuid from "cuid";
 
 export default function GameScreen() {
   const router = useRouter();
   const { room } = useParams();
   const [roomExists, setRoomExists] = useState<boolean | null>(null);
   const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>([]);
+
+  const handleContinue = () => {
+    const scores: { [submitter: string]: number } = {};
+
+    for (const answer of missionAnswers) {
+      // Hitting a hit
+      if (
+        answer.hitUser &&
+        answer.targets.filter(
+          (target) =>
+            target.name === localStorage.getItem("samevibes-name") &&
+            target.type === "hit"
+        ).length > 0
+      ) {
+        if (!scores[answer.submitter]) {
+          scores[answer.submitter] = 0;
+        }
+        scores[answer.submitter] += answer.level;
+      }
+
+      for (const submitter of Object.keys(scores)) {
+        set(
+          ref(
+            database,
+            `samevibes/rooms/${room}/scores/${submitter}/${cuid()}`
+          ),
+          scores[submitter]
+        );
+      }
+
+      // Avoiding a hit
+      if (
+        !answer.hitUser &&
+        answer.targets.filter(
+          (target) =>
+            target.name === localStorage.getItem("samevibes-name") &&
+            target.type === "avoid"
+        ).length > 0
+      ) {
+        if (!scores[answer.submitter]) {
+          scores[answer.submitter] = 0;
+        }
+        scores[answer.submitter] += answer.level;
+      }
+
+      if (answer.hitUser) {
+        set(
+          ref(
+            database,
+            `samevibes/rooms/${room}/missionAnswers/${
+              answer.id
+            }/hitUsers/${localStorage.getItem("samevibes-name")}`
+          ),
+          true
+        );
+      }
+    }
+
+    router.push(`/${room}/wait/surveyed`);
+  };
 
   useEffect(() => {
     const roomRef = ref(database, `samevibes/rooms/${room}`);
@@ -25,7 +86,12 @@ export default function GameScreen() {
         const shuffledMissionAnswers = fisherYatesShuffle(
           Object.values(data.missionAnswers)
         );
-        setMissionAnswers(shuffledMissionAnswers);
+        setMissionAnswers(
+          shuffledMissionAnswers.map((answer) => ({
+            ...answer,
+            hitUser: false,
+          }))
+        );
       }
     });
 
@@ -82,6 +148,16 @@ export default function GameScreen() {
               className='flex items-start space-x-3 justify-between'
             >
               <input
+                checked={answer.hitUser}
+                onChange={(e) => {
+                  setMissionAnswers(
+                    missionAnswers.map((a) =>
+                      a.id === answer.id
+                        ? { ...a, hitUser: e.target.checked }
+                        : a
+                    )
+                  );
+                }}
                 type='checkbox'
                 id={`mission-${index}`}
                 className='mt-1 h-4 w-4 rounded border-gray-300 text-[#2e9ca9] focus:ring-[#2e9ca9]'
@@ -102,7 +178,7 @@ export default function GameScreen() {
 
         <div className='flex justify-center'>
           <button
-            onClick={() => router.push(`/${room}/wait/surveyed`)}
+            onClick={handleContinue}
             className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
           >
             Continue
