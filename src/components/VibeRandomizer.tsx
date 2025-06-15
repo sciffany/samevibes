@@ -30,7 +30,7 @@ export default function VibeRandomizer({
     <div className='flex items-center gap-4 flex-col'>
       <Image
         className='rounded-2xl shadow-lg'
-        src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${seed}`}
+        src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`}
         alt='vibe avatar'
         width={100}
         height={100}
