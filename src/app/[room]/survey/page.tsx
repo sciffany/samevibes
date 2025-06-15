@@ -80,19 +80,20 @@ export default function GameScreen() {
   };
 
   useEffect(() => {
-    const roomRef = ref(database, `samevibes/rooms/${room}`);
+    const roomRef = ref(database, `samevibes/rooms/${room}/missionAnswers`);
 
     // Read mission answers from firebase
     get(roomRef).then((snapshot) => {
+      setRoomExists(snapshot.exists());
       if (snapshot.exists()) {
-        const data = snapshot.val() as {
-          missionAnswers: Record<string, MissionAnswer>;
-        };
-        const shuffledMissionAnswers = fisherYatesShuffle(
-          Object.values(data.missionAnswers)
-        );
+        const data = snapshot.val() as Record<string, MissionAnswer>;
+
+        const missionAnswers = Object.values(data);
+
+        fisherYatesShuffle(missionAnswers);
+
         setMissionAnswers(
-          shuffledMissionAnswers.map((answer) => ({
+          missionAnswers.map((answer) => ({
             ...answer,
             hitUser: false,
           }))
