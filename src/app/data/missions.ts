@@ -609,6 +609,10 @@ export function generateMissions(
 }
 
 export function joinWithAnd(array: string[]) {
+  if (array.length === 0) {
+    return "NONE";
+  }
+
   return array.length > 1
     ? `${array.slice(0, -1).join(", ")} and ${array[array.length - 1]}`
     : array[0];

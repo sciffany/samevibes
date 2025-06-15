@@ -3,21 +3,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ref, onValue, off } from "firebase/database";
 import { database } from "@/firebase";
-import MissionScreen from "@/app/components/MissionScreen";
-import { generateMissions } from "@/app/data/missions";
-import type { Mission } from "@/app/data/missions";
 import RevealScreen from "@/app/components/RevealScreen";
+import { MissionAnswer } from "@/app/components/MissionScreen";
 
 export default function GameScreen() {
   const router = useRouter();
   const { room } = useParams();
   const [roomExists, setRoomExists] = useState<boolean | null>(null);
-  const [players, setPlayers] = useState<
-    Record<string, { name: string; vibe: string }>
-  >({});
-  const [host, setHost] = useState<string>("");
-  const [currentMissionIndex, setCurrentMissionIndex] = useState(0);
-  const [missions, setMissions] = useState<Mission[]>([]);
+  const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>([]);
+  const [currentMissionAnswerIndex, setCurrentMissionAnswerIndex] = useState(0);
 
   useEffect(() => {
     const roomRef = ref(database, `samevibes/rooms/${room}`);
@@ -26,12 +20,10 @@ export default function GameScreen() {
     onValue(roomRef, (snapshot) => {
       setRoomExists(snapshot.exists());
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setPlayers(data.players || {});
-        setHost(data.host || "");
-
-        // Generate missions when players are updated
-        setMissions(generateMissions(data.players || {}));
+        const data = snapshot.val() as {
+          missionAnswers: Record<string, MissionAnswer>;
+        };
+        setMissionAnswers(Object.values(data.missionAnswers));
       }
     });
 
@@ -69,14 +61,13 @@ export default function GameScreen() {
         <div className='text-sm w-1/3'>Phase 3</div>
         <div className='text-xl font-semibold w-1/3 text-center'>samevibes</div>
         <div className='text-sm w-1/3 text-right'>
-          {currentMissionIndex + 1}/{missions.length}
+          {currentMissionAnswerIndex + 1}/{missionAnswers.length}
         </div>
       </header>
       <RevealScreen
-        missions={missions}
-        currentMissionIndex={currentMissionIndex}
-        onMissionChange={setCurrentMissionIndex}
-        players={players}
+        missionAnswers={missionAnswers}
+        index={currentMissionAnswerIndex}
+        onIndexChange={setCurrentMissionAnswerIndex}
       />
     </div>
   );

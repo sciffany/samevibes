@@ -1,80 +1,23 @@
 import { useState } from "react";
 import {
+  descriptionTemplates,
   joinWithAnd,
-  Mission,
-  Target,
   useVerbBasedOnPlayerCount,
 } from "@/app/data/missions";
+import { MissionAnswer } from "./MissionScreen";
 import PlayerScreen from "./PlayerScreen";
-import { useParams, useRouter } from "next/navigation";
-import cuid from "cuid";
-import { database } from "@/firebase";
-import { ref, set, push } from "firebase/database";
-
-interface MissionScreenProps {
-  missions: Mission[];
-  currentMissionIndex: number;
-  onMissionChange: (index: number) => void;
-  players: Record<string, { name: string; vibe: string }>;
-}
-
-export interface MissionAnswer {
-  id: string;
-  level: 1 | 2;
-  answer: string;
-  targets: Target[];
-  missionId: number;
-  submitter: string;
-  hitUser?: boolean;
-  hitUsers?: {
-    [name: string]: boolean;
-  };
-}
 
 export default function RevealScreen({
-  missions,
-  currentMissionIndex,
-  onMissionChange,
-  players,
-}: MissionScreenProps) {
-  const router = useRouter();
-  const { room } = useParams();
+  index,
+  missionAnswers,
+  onIndexChange,
+}: {
+  index: number;
+  missionAnswers: MissionAnswer[];
+  onIndexChange: (index: number) => void;
+}) {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>(
-    missions.map((mission) => ({
-      id: cuid(),
-      level: 1,
-      answer: "",
-      targets: mission.targets,
-      missionId: mission.id,
-      submitter: localStorage.getItem("samevibes-name") || "",
-    }))
-  );
-
-  async function handleSubmit() {
-    // Write mission answers to room in firebase
-    for (const missionAnswer of missionAnswers) {
-      await set(
-        ref(
-          database,
-          `samevibes/rooms/${room}/missionAnswers/${missionAnswer.id}`
-        ),
-        missionAnswer
-      );
-    }
-
-    // Write 'submitted' in players object
-    const playersRef = ref(
-      database,
-      `samevibes/rooms/${room}/players/${localStorage.getItem(
-        "samevibes-name"
-      )}/submitted`
-    );
-    await set(playersRef, true);
-
-    router.push(`/${room}/wait/submitted`);
-  }
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
@@ -95,27 +38,15 @@ export default function RevealScreen({
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
-    if (isLeftSwipe && currentMissionIndex < missions.length - 1) {
-      onMissionChange(currentMissionIndex + 1);
+    if (isLeftSwipe && index < missionAnswers.length - 1) {
+      onIndexChange(index + 1);
     }
-    if (isRightSwipe && currentMissionIndex > 0) {
-      onMissionChange(currentMissionIndex - 1);
+    if (isRightSwipe && index > 0) {
+      onIndexChange(index - 1);
     }
   };
 
-  const currentMission = missions[currentMissionIndex];
-  const currentAnswer = missionAnswers[currentMissionIndex];
-
-  const updateMissionAnswer = (
-    index: number,
-    updates: Partial<MissionAnswer>
-  ) => {
-    setMissionAnswers((prev) => {
-      const newAnswers = [...prev];
-      newAnswers[index] = { ...newAnswers[index], ...updates };
-      return newAnswers;
-    });
-  };
+  const currentMissionAnswer = missionAnswers[index];
 
   return (
     <main
@@ -126,97 +57,104 @@ export default function RevealScreen({
     >
       {/* Mission */}
       <div>
-        <h2 className='font-bold text-lg'>Mission {currentMissionIndex + 1}</h2>
-        <p>{currentMission.missionString}</p>
-      </div>
-      <hr className='border-t border-[#2e9ca9]' />
-      {/* Prompt */}
-      <div>
-        <h3 className='font-semibold text-md'>
-          Only{" "}
-          {joinWithAnd(
-            currentMission.targets
-              .filter((target) => target.type === "hit")
-              .map((target) => target.name)
-          )}{" "}
-          {useVerbBasedOnPlayerCount(
-            currentMission.descriptionTemplate.verb,
-            currentMission.targets.filter((target) => target.type === "hit")
-              .length
-          )}{" "}
-          {currentMission.descriptionTemplate.prompt}
+        <h2 className='font-bold text-lg'>Reveal {index + 1}</h2>
+        <h3 className='text-sm text-[#2e9ca9]'>
+          {currentMissionAnswer.submitter}'s MISSION WAS
         </h3>
+        <p>{generateMissionRecall(currentMissionAnswer)}</p>
       </div>
-      {/* Level selection */}
-      <div className='flex gap-4'>
-        <label className='flex items-center gap-2 cursor-pointer'>
-          <input
-            type='radio'
-            name={`level-${currentMissionIndex}`}
-            checked={currentAnswer.level === 1}
-            onChange={() =>
-              updateMissionAnswer(currentMissionIndex, { level: 1 })
-            }
-            className='w-4 h-4'
-          />
-          <span>+1pts</span>
-        </label>
-        <label className='flex items-center gap-2 cursor-pointer'>
-          <input
-            type='radio'
-            name={`level-${currentMissionIndex}`}
-            checked={currentAnswer.level === 2}
-            onChange={() =>
-              updateMissionAnswer(currentMissionIndex, { level: 2 })
-            }
-            className='w-4 h-4'
-          />
-          <span>+2pts</span>
-        </label>
-      </div>
-      {/* Answer input */}
-      <input
-        type='text'
-        value={currentAnswer.answer}
-        onChange={(e) =>
-          updateMissionAnswer(currentMissionIndex, { answer: e.target.value })
-        }
-        placeholder={
-          currentAnswer.level === 1
-            ? currentMission.descriptionTemplate.level1
-            : currentMission.descriptionTemplate.level2
-        }
-        className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400'
-      />
-      {/* People targets */}
+
+      <hr className='border-t border-[#2e9ca9]' />
+      <h3 className='text-sm text-[#2e9ca9]'>
+        FOR {currentMissionAnswer.level === 1 ? "1 POINT" : "2 POINTS"} PER
+        TARGET, {currentMissionAnswer.submitter}'s ANSWER WAS...
+      </h3>
+
+      <p>{generateMissionAnswerString(currentMissionAnswer)}</p>
+
+      <hr className='border-t border-[#2e9ca9]' />
+
+      <h3 className='text-sm text-[#2e9ca9]'>SURVEY SAYS...</h3>
+      <p>{generateHitList(currentMissionAnswer)}</p>
+
+      {/* Player list */}
       <PlayerScreen
         players={Object.fromEntries(
-          currentMission.targets.map((target) => {
-            return [
-              target.name,
-              { name: target.name, vibe: target.vibe, type: target.type },
-            ];
-          })
+          currentMissionAnswer.targets.map((target) => [
+            target.name,
+            {
+              name: target.name,
+              vibe: target.vibe,
+              type: target.type,
+              wasHit: Object.hasOwn(
+                currentMissionAnswer.hitUsers ?? {},
+                target.name
+              ),
+            },
+          ])
         )}
       />
+
+      <h3 className='text-sm text-[#2e9ca9]'>
+        {currentMissionAnswer.submitter}'s accuracy:
+      </h3>
+
       {/* Mission progress dots */}
       <div className='flex justify-center space-x-2 mt-4'>
-        {missions.map((_, index) => (
+        {missionAnswers.map((_, i) => (
           <div
-            key={index}
+            key={i}
             className={`w-2 h-2 rounded-full ${
-              index === currentMissionIndex ? "bg-[#2e9ca9]" : "bg-gray-300"
+              i === index ? "bg-[#2e9ca9]" : "bg-gray-300"
             }`}
           />
         ))}
       </div>
-      {currentMissionIndex === missions.length - 1 && (
-        <div className='flex justify-center' onClick={handleSubmit}>
-          <button className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'>
-            Submit
-          </button>
-        </div>
-      )}
     </main>
   );
+}
+
+function generateMissionRecall(missionAnswer: MissionAnswer) {
+  const targetsToHit = missionAnswer.targets.filter(
+    (target) => target.type === "hit"
+  );
+
+  return `Only ${joinWithAnd(
+    targetsToHit.map((target) => target.name)
+  )}  ${useVerbBasedOnPlayerCount(
+    descriptionTemplates[missionAnswer.missionId - 1].verb,
+    targetsToHit.length
+  )} ${descriptionTemplates[missionAnswer.missionId - 1].verb} ${
+    descriptionTemplates[missionAnswer.missionId - 1].prompt
+  } (${
+    missionAnswer.level === 1
+      ? descriptionTemplates[missionAnswer.missionId - 1].level1
+      : descriptionTemplates[missionAnswer.missionId - 1].level2
+  })`;
+}
+
+function generateMissionAnswerString(missionAnswer: MissionAnswer) {
+  const targetsToHit = missionAnswer.targets.filter(
+    (target) => target.type === "hit"
+  );
+
+  return `Only ${joinWithAnd(
+    targetsToHit.map((target) => target.name)
+  )}  ${useVerbBasedOnPlayerCount(
+    descriptionTemplates[missionAnswer.missionId - 1].verb,
+    targetsToHit.length
+  )}  ${descriptionTemplates[missionAnswer.missionId - 1].prompt} ${
+    missionAnswer.answer
+  }`;
+}
+
+function generateHitList(missionAnswer: MissionAnswer) {
+  const hitUsers = Object.keys(missionAnswer.hitUsers ?? {});
+
+  return `${joinWithAnd(hitUsers)}  ${useVerbBasedOnPlayerCount(
+    descriptionTemplates[missionAnswer.missionId - 1].verb,
+    hitUsers.length
+  )}  ${descriptionTemplates[missionAnswer.missionId - 1].prompt} ${
+    missionAnswer.answer
+  }`;
 }
