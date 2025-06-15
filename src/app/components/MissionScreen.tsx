@@ -2,10 +2,14 @@ import { useState } from "react";
 import {
   joinWithAnd,
   Mission,
+  Target,
   useVerbBasedOnPlayerCount,
 } from "@/app/data/missions";
 import PlayerScreen from "./PlayerScreen";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import cuid from "cuid";
+import { database } from "@/firebase";
+import { ref, set, push } from "firebase/database";
 
 interface MissionScreenProps {
   missions: Mission[];
@@ -14,17 +18,58 @@ interface MissionScreenProps {
   players: Record<string, { name: string; vibe: string }>;
 }
 
+export interface MissionAnswer {
+  id: string;
+  level: 1 | 2;
+  answer: string;
+  targets: Target[];
+  missionId: number;
+}
+
 export default function MissionScreen({
   missions,
   currentMissionIndex,
-  players,
   onMissionChange,
+  players,
 }: MissionScreenProps) {
+  const router = useRouter();
   const { room } = useParams();
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<1 | 2>(1);
-  const [answer, setAnswer] = useState("");
+  const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>(
+    missions.map((mission) => ({
+      id: cuid(),
+      level: 1,
+      answer: "",
+      targets: mission.targets,
+      missionId: mission.id,
+      submitter: localStorage.getItem("samevibes-name") || "",
+    }))
+  );
+
+  async function handleSubmit() {
+    // Write mission answers to room in firebase
+    for (const missionAnswer of missionAnswers) {
+      await set(
+        ref(
+          database,
+          `samevibes/rooms/${room}/missionAnswers/${missionAnswer.id}`
+        ),
+        missionAnswer
+      );
+    }
+
+    // Write 'submitted' in players object
+    const playersRef = ref(
+      database,
+      `samevibes/rooms/${room}/players/${localStorage.getItem(
+        "samevibes-name"
+      )}/submitted`
+    );
+    await set(playersRef, true);
+
+    router.push(`/${room}/wait/submitted`);
+  }
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
@@ -54,6 +99,18 @@ export default function MissionScreen({
   };
 
   const currentMission = missions[currentMissionIndex];
+  const currentAnswer = missionAnswers[currentMissionIndex];
+
+  const updateMissionAnswer = (
+    index: number,
+    updates: Partial<MissionAnswer>
+  ) => {
+    setMissionAnswers((prev) => {
+      const newAnswers = [...prev];
+      newAnswers[index] = { ...newAnswers[index], ...updates };
+      return newAnswers;
+    });
+  };
 
   return (
     <main
@@ -64,7 +121,7 @@ export default function MissionScreen({
     >
       {/* Mission */}
       <div>
-        <h2 className='font-bold text-lg'>Mission {currentMission.id}</h2>
+        <h2 className='font-bold text-lg'>Mission {currentMissionIndex + 1}</h2>
         <p>{currentMission.missionString}</p>
       </div>
       <hr className='border-t border-[#2e9ca9]' />
@@ -90,9 +147,11 @@ export default function MissionScreen({
         <label className='flex items-center gap-2 cursor-pointer'>
           <input
             type='radio'
-            name='level'
-            checked={selectedLevel === 1}
-            onChange={() => setSelectedLevel(1)}
+            name={`level-${currentMissionIndex}`}
+            checked={currentAnswer.level === 1}
+            onChange={() =>
+              updateMissionAnswer(currentMissionIndex, { level: 1 })
+            }
             className='w-4 h-4'
           />
           <span>+1pts</span>
@@ -100,9 +159,11 @@ export default function MissionScreen({
         <label className='flex items-center gap-2 cursor-pointer'>
           <input
             type='radio'
-            name='level'
-            checked={selectedLevel === 2}
-            onChange={() => setSelectedLevel(2)}
+            name={`level-${currentMissionIndex}`}
+            checked={currentAnswer.level === 2}
+            onChange={() =>
+              updateMissionAnswer(currentMissionIndex, { level: 2 })
+            }
             className='w-4 h-4'
           />
           <span>+2pts</span>
@@ -111,10 +172,12 @@ export default function MissionScreen({
       {/* Answer input */}
       <input
         type='text'
-        value={answer}
-        onChange={(e) => setAnswer(e.target.value)}
+        value={currentAnswer.answer}
+        onChange={(e) =>
+          updateMissionAnswer(currentMissionIndex, { answer: e.target.value })
+        }
         placeholder={
-          selectedLevel === 1
+          currentAnswer.level === 1
             ? currentMission.descriptionTemplate.level1
             : currentMission.descriptionTemplate.level2
         }
@@ -143,7 +206,7 @@ export default function MissionScreen({
         ))}
       </div>
       {currentMissionIndex === missions.length - 1 && (
-        <div className='flex justify-center'>
+        <div className='flex justify-center' onClick={handleSubmit}>
           <button className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'>
             Submit
           </button>

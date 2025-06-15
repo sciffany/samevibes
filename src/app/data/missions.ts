@@ -19,7 +19,7 @@ export interface Mission {
   descriptionTemplate: DescriptionTemplate;
 }
 
-const descriptionTemplates: DescriptionTemplate[] = [
+export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 1,
     verb: "have",
@@ -255,8 +255,8 @@ const descriptionTemplates: DescriptionTemplate[] = [
     id: 34,
     verb: "have",
     prompt: "spent too much time on",
-    level1: "a mobile app",
-    level2: "a random hobby",
+    level1: "a random hobby",
+    level2: "a mobile app",
   },
   {
     id: 35,
@@ -377,6 +377,147 @@ const descriptionTemplates: DescriptionTemplate[] = [
     level1: "a superpower",
     level2: "a responsibility",
   },
+
+  {
+    id: 51,
+    verb: "would",
+    prompt: "join a cult for",
+    level1: "a food item",
+    level2: "a fictional leader",
+  },
+  {
+    id: 52,
+    verb: "have",
+    prompt: "lied about",
+    level1: "a talent",
+    level2: "a life experience",
+  },
+  {
+    id: 53,
+    verb: "would",
+    prompt: "redecorate their room with",
+    level1: "a theme",
+    level2: "a color scheme",
+  },
+  {
+    id: 54,
+    verb: "have",
+    prompt: "memorized",
+    level1: "a list of facts",
+    level2: "a song",
+  },
+  {
+    id: 55,
+    verb: "would",
+    prompt: "teach a class on",
+    level1: "a skill",
+    level2: "a weirdly specific topic",
+  },
+  {
+    id: 56,
+    verb: "have",
+    prompt: "rage-quit",
+    level1: "a game",
+    level2: "a social situation",
+  },
+  {
+    id: 57,
+    verb: "would",
+    prompt: "secretly judge someone for",
+    level1: "a fashion choice",
+    level2: "a conversation habit",
+  },
+  {
+    id: 58,
+    verb: "have",
+    prompt: "tried and failed at",
+    level1: "a trend",
+    level2: "a skill",
+  },
+  {
+    id: 59,
+    verb: "would",
+    prompt: "start a business in",
+    level1: "a niche industry",
+    level2: "a random hobby",
+  },
+  {
+    id: 60,
+    verb: "have",
+    prompt: "used as a party trick",
+    level1: "a fun fact",
+    level2: "a quirky skill",
+  },
+  {
+    id: 61,
+    verb: "would",
+    prompt: "fake confidence in",
+    level1: "a situation",
+    level2: "a knowledge area",
+  },
+  {
+    id: 62,
+    verb: "have",
+    prompt: "role-played as",
+    level1: "a fictional character",
+    level2: "a professional role",
+  },
+  {
+    id: 63,
+    verb: "would",
+    prompt: "hire a personal coach for",
+    level1: "a life skill",
+    level2: "a bad habit",
+  },
+  {
+    id: 64,
+    verb: "have",
+    prompt: "felt irrationally angry about",
+    level1: "a sound",
+    level2: "a social behavior",
+  },
+  {
+    id: 65,
+    verb: "would",
+    prompt: "get distracted by",
+    level1: "a cute animal",
+    level2: "a random object",
+  },
+  {
+    id: 66,
+    verb: "have",
+    prompt: "been obsessed with",
+    level1: "a TV character",
+    level2: "a celebrity or streamer",
+  },
+  {
+    id: 67,
+    verb: "would",
+    prompt: "delete all social media for",
+    level1: "a peace-of-mind reason",
+    level2: "a challenge or reward",
+  },
+  {
+    id: 68,
+    verb: "have",
+    prompt: "taken a deep dive into",
+    level1: "a conspiracy theory",
+    level2: "a fandom",
+  },
+  {
+    id: 69,
+    verb: "would",
+    prompt: "quit their job to pursue",
+    level1: "a dream",
+    level2: "a side hustle",
+  },
+  {
+    id: 70,
+    verb: "have",
+    prompt: "accidentally revealed",
+    level1: "a secret",
+    level2: "an embarrassing fact",
+  },
 ];
 
 function singularizeVerb(verb: string) {
@@ -400,7 +541,15 @@ enum TargetType {
   AVOID = "avoid",
 }
 
-const NUM_MISSIONS = 2;
+const NUM_MISSIONS = 5;
+
+export const fisherYatesShuffle = <T>(array: T[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
 
 export function generateMissions(
   players: Record<string, { name: string; vibe: string }>
@@ -411,14 +560,6 @@ export function generateMissions(
   )
     .fill(0)
     .map((_, index) => index + 1);
-
-  const fisherYatesShuffle = <T>(array: T[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
 
   const shuffledNumbers = fisherYatesShuffle(numbersFrom1To2PowerNMinus1);
   const shuffledDescriptionTemplates = fisherYatesShuffle(descriptionTemplates);
@@ -459,7 +600,7 @@ export function generateMissions(
       )}`;
 
       return {
-        id: index + 1,
+        id: shuffledDescriptionTemplates[index].id,
         targets,
         missionString,
         descriptionTemplate: shuffledDescriptionTemplates[index],
