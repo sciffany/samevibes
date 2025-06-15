@@ -109,27 +109,16 @@ export default function RevealScreen({
       onTouchEnd={onTouchEnd}
     >
       {/* Mission */}
-      <div>
-        <h2 className='font-bold text-lg'>Reveal {index + 1}</h2>
-        <h3 className='text-sm text-[#2e9ca9]'>
-          {currentMissionAnswer.submitter}'s MISSION WAS TO FILL IN
-        </h3>
-        <p>{generateMissionRecall(currentMissionAnswer)}</p>
-      </div>
 
-      <hr className='border-t border-[#2e9ca9]' />
       <div>
         <h3 className='text-sm text-[#2e9ca9]'>
-          FOR {currentMissionAnswer.level === 1 ? "1 POINT" : "2 POINTS"} PER
-          TARGET, {currentMissionAnswer.submitter} THINKS...
+          {currentMissionAnswer.submitter} THINKS
         </h3>
+
         <p>{generateMissionAnswerString(currentMissionAnswer)}</p>
       </div>
-
-      <hr className='border-t border-[#2e9ca9]' />
-
       <div>
-        <h3 className='text-sm text-[#2e9ca9]'>SURVEY SAYS...</h3>
+        <h3 className='text-sm text-[#2e9ca9]'>TRUTH IS</h3>
         <p>{generateHitList(currentMissionAnswer)}</p>
       </div>
 
@@ -181,24 +170,8 @@ export default function RevealScreen({
   );
 }
 
-function generateMissionRecall(missionAnswer: MissionAnswer) {
-  const targetsToHit = missionAnswer.targets.filter(
-    (target) => target.type === "hit"
-  );
-
-  const mission = descriptionTemplates.find(
-    (mission) => mission.id === missionAnswer.missionId
-  ) ?? { verb: "", prompt: "", level1: "", level2: "" };
-
-  return `Only ${joinWithAnd(
-    targetsToHit.map((target) => target.name)
-  )}  ${useVerbBasedOnPlayerCount(mission?.verb, targetsToHit.length)} ${
-    mission?.prompt
-  } (${missionAnswer.level === 1 ? mission?.level1 : mission?.level2})`;
-}
-
 function generateMissionAnswerString(missionAnswer: MissionAnswer) {
-  const targetsToHit = missionAnswer.targets.filter(
+  const targets = missionAnswer.targets.filter(
     (target) => target.type === "hit"
   );
 
@@ -206,11 +179,16 @@ function generateMissionAnswerString(missionAnswer: MissionAnswer) {
     (mission) => mission.id === missionAnswer.missionId
   ) ?? { verb: "", prompt: "", level1: "", level2: "" };
 
-  return `Only ${joinWithAnd(
-    targetsToHit.map((target) => target.name)
-  )}  ${useVerbBasedOnPlayerCount(mission?.verb, targetsToHit.length)}  ${
+  return `${joinWithAnd(
+    targets.map((target) => target.name)
+  )}  ${useVerbBasedOnPlayerCount(
+    mission?.verb,
+    targets.length
+  )} ${useVerbBasedOnPlayerCount(mission?.verb, targets.length)} ${
     mission?.prompt
-  } ${missionAnswer.answer}`;
+  } ${missionAnswer.answer} (${
+    missionAnswer.level === 1 ? mission?.level1 : mission?.level2
+  })`;
 }
 
 function generateHitList(missionAnswer: MissionAnswer) {
@@ -222,7 +200,7 @@ function generateHitList(missionAnswer: MissionAnswer) {
   return `${joinWithAnd(hitUsers)}  ${useVerbBasedOnPlayerCount(
     mission?.verb,
     hitUsers.length
-  )}  ${mission?.prompt} ${missionAnswer.answer}`;
+  )}`;
 }
 
 function calculateAccuracy(missionAnswer: MissionAnswer) {

@@ -368,14 +368,14 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     verb: "would",
     prompt: "teleport to",
     level1: "a place",
-    level2: "a reason",
+    level2: "for a reason",
   },
   {
     id: 51,
     verb: "would",
-    prompt: "choose to have",
-    level1: "a superpower",
-    level2: "a responsibility",
+    prompt: "(if they only had one choice) choose to have",
+    level1: "this superpower",
+    level2: "this wish",
   },
 
   {
