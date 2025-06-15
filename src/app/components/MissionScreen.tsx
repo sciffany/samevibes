@@ -189,6 +189,12 @@ export default function MissionScreen({
           <span>+2pts</span>
         </label>
       </div>
+
+      <b>
+        {currentAnswer.level === 1
+          ? currentMission.descriptionTemplate.level1
+          : currentMission.descriptionTemplate.level2}
+      </b>
       {/* Answer input */}
       <input
         type='text'
@@ -196,13 +202,9 @@ export default function MissionScreen({
         onChange={(e) =>
           updateMissionAnswer(currentMissionIndex, { answer: e.target.value })
         }
-        placeholder={
-          currentAnswer.level === 1
-            ? currentMission.descriptionTemplate.level1
-            : currentMission.descriptionTemplate.level2
-        }
         className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400'
       />
+
       {/* People targets */}
       <PlayerScreen
         players={Object.fromEntries(
