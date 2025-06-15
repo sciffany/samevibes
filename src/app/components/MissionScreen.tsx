@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   joinWithAnd,
   Mission,
@@ -41,16 +41,23 @@ export default function MissionScreen({
   const { room } = useParams();
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>(
-    missions.map((mission) => ({
-      id: cuid(),
-      level: 1,
-      answer: "",
-      targets: mission.targets,
-      missionId: mission.id,
-      submitter: localStorage.getItem("samevibes-name") || "",
-    }))
-  );
+
+  const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>([]);
+
+  useEffect(() => {
+    if (missions.length > 0) {
+      setMissionAnswers(
+        missions.map((mission) => ({
+          id: cuid(),
+          level: 1,
+          answer: "",
+          targets: mission.targets,
+          missionId: mission.id,
+          submitter: localStorage.getItem("samevibes-name") || "",
+        }))
+      );
+    }
+  }, [missions]);
 
   async function handleSubmit() {
     // Write mission answers to room in firebase
@@ -116,6 +123,14 @@ export default function MissionScreen({
       return newAnswers;
     });
   };
+
+  if (!currentMission || !currentAnswer) {
+    return (
+      <div className='min-h-screen bg-[#fdfbee] text-[#0d2c40] font-sans flex flex-col items-center justify-center'>
+        <p className='text-xl text-[#2e9ca9] font-semibold'>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <main

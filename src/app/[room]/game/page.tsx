@@ -1,7 +1,7 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ref, onValue, off } from "firebase/database";
+import { ref, onValue, off, get } from "firebase/database";
 import { database } from "@/firebase";
 import MissionScreen from "@/app/components/MissionScreen";
 import { generateMissions } from "@/app/data/missions";
@@ -14,31 +14,29 @@ export default function GameScreen() {
   const [players, setPlayers] = useState<
     Record<string, { name: string; vibe: string }>
   >({});
-  const [host, setHost] = useState<string>("");
+
   const [currentMissionIndex, setCurrentMissionIndex] = useState(0);
   const [missions, setMissions] = useState<Mission[]>([]);
 
   useEffect(() => {
+    if (Object.keys(players).length > 0) {
+      setMissions(generateMissions(players));
+    }
+  }, [players]);
+
+  useEffect(() => {
+    // fetch players from firebase without subscribing
     const roomRef = ref(database, `samevibes/rooms/${room}`);
 
-    // Subscribe to room updates
-    onValue(roomRef, (snapshot) => {
-      setRoomExists(snapshot.exists());
+    get(roomRef).then((snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setPlayers(data.players || {});
-        setHost(data.host || "");
-
-        // Generate missions when players are updated
-        setMissions(generateMissions(data.players || {}));
+        setPlayers(snapshot.val().players || {});
+        setRoomExists(true);
+      } else {
+        setRoomExists(false);
       }
     });
-
-    // Cleanup subscription and update player status on unmount
-    return () => {
-      off(roomRef);
-    };
-  }, [room]);
+  }, []);
 
   if (roomExists === null) {
     return (

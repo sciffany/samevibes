@@ -113,7 +113,7 @@ export default function RevealScreen({
       <div>
         <h2 className='font-bold text-lg'>Reveal {index + 1}</h2>
         <h3 className='text-sm text-[#2e9ca9]'>
-          {currentMissionAnswer.submitter}'s MISSION WAS
+          {currentMissionAnswer.submitter}'s MISSION WAS TO FILL IN
         </h3>
         <p>{generateMissionRecall(currentMissionAnswer)}</p>
       </div>

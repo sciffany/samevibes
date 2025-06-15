@@ -1,7 +1,7 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ref, onValue, off } from "firebase/database";
+import { ref, onValue, off, set } from "firebase/database";
 import { database } from "@/firebase";
 import PlayerScreen from "../components/PlayerScreen";
 
@@ -24,6 +24,9 @@ export default function GameScreen() {
         const data = snapshot.val();
         setPlayers(data.players || {});
         setHost(data.host || "");
+        if (data.gameStarted) {
+          router.push(`/${room}/game`);
+        }
       }
     });
 
@@ -77,7 +80,16 @@ export default function GameScreen() {
         {host === localStorage.getItem("samevibes-name") && (
           <div className='flex flex-col items-center justify-center p-4'>
             <button
-              onClick={() => router.push(`/${room}/game`)}
+              onClick={() => {
+                // update game state in firebase
+                const roomRef = ref(
+                  database,
+                  `samevibes/rooms/${room}/gameStarted`
+                );
+                set(roomRef, true);
+
+                router.push(`/${room}/game`);
+              }}
               className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
             >
               Start Game

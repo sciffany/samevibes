@@ -1,7 +1,7 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ref, onValue, off, set } from "firebase/database";
+import { ref, onValue, off, set, get } from "firebase/database";
 import { database } from "@/firebase";
 import { MissionAnswer } from "@/app/components/MissionScreen";
 import { descriptionTemplates, fisherYatesShuffle } from "@/app/data/missions";
@@ -13,7 +13,7 @@ export default function GameScreen() {
   const [roomExists, setRoomExists] = useState<boolean | null>(null);
   const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>([]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const scores: { [submitter: string]: number } = {};
 
     for (const answer of missionAnswers) {
@@ -67,15 +67,23 @@ export default function GameScreen() {
       );
     }
 
+    // Write 'surveyed' in players object
+    const playersRef = ref(
+      database,
+      `samevibes/rooms/${room}/players/${localStorage.getItem(
+        "samevibes-name"
+      )}/surveyed`
+    );
+    await set(playersRef, true);
+
     router.push(`/${room}/wait/surveyed`);
   };
 
   useEffect(() => {
     const roomRef = ref(database, `samevibes/rooms/${room}`);
 
-    // Subscribe to room updates
-    onValue(roomRef, (snapshot) => {
-      setRoomExists(snapshot.exists());
+    // Read mission answers from firebase
+    get(roomRef).then((snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val() as {
           missionAnswers: Record<string, MissionAnswer>;
@@ -91,11 +99,6 @@ export default function GameScreen() {
         );
       }
     });
-
-    // Cleanup subscription and update player status on unmount
-    return () => {
-      off(roomRef);
-    };
   }, [room]);
 
   if (roomExists === null) {

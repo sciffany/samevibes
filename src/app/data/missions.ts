@@ -296,9 +296,9 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 40,
     verb: "have",
-    prompt: "built",
+    prompt: "created",
     level1: "a DIY project",
-    level2: "a software app",
+    level2: "a product",
   },
   {
     id: 41,
@@ -431,8 +431,8 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     id: 59,
     verb: "would",
     prompt: "start a business in",
-    level1: "a niche industry",
-    level2: "a random hobby",
+    level1: "a random hobby",
+    level2: "a niche industry",
   },
   {
     id: 60,
@@ -541,7 +541,7 @@ enum TargetType {
   AVOID = "avoid",
 }
 
-const NUM_MISSIONS = 5;
+const NUM_MISSIONS = 3;
 
 export const fisherYatesShuffle = <T>(array: T[]) => {
   for (let i = array.length - 1; i > 0; i--) {
@@ -554,25 +554,20 @@ export const fisherYatesShuffle = <T>(array: T[]) => {
 export function generateMissions(
   players: Record<string, { name: string; vibe: string }>
 ): Mission[] {
-  // Generate NUM_MISSIONS random numbers between 1 and 2^n - 1 where n is the number of players, and make sure they are different
-  const numbersFrom1To2PowerNMinus1 = Array(
-    2 ** Object.keys(players).length - 2
-  )
-    .fill(0)
-    .map((_, index) => index + 1);
-
-  const shuffledNumbers = fisherYatesShuffle(numbersFrom1To2PowerNMinus1);
   const shuffledDescriptionTemplates = fisherYatesShuffle(descriptionTemplates);
 
   return Array(NUM_MISSIONS)
     .fill(0)
     .map((_, index) => {
       // Generate a random number between 1 and 2^n - 1 where n is the number of players
-      const randomNumber = shuffledNumbers[index];
+      const randomNumber =
+        Math.floor(Math.random() * (2 ** Object.keys(players).length - 2)) + 1;
 
       // Convert it to binary and array of 0s and 1s
       const binaryString = randomNumber.toString(2);
+
       const binaryArray = binaryString.split("").map(Number);
+
       // Pad the binary array with 0s to the left to make it the same length as the number of players
       const paddedBinaryArray = Array(
         Object.keys(players).length - binaryArray.length
