@@ -10,7 +10,6 @@ export default function PlayerScreen({
   >;
   playerName?: string;
 }) {
-  console.log(players);
   return (
     <div className='flex flex-col items-center justify-center py-2 gap-2 grid grid-cols-4'>
       {Object.entries(players).map(([playerId, player]) => (

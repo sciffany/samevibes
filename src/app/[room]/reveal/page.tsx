@@ -12,6 +12,7 @@ export default function GameScreen() {
   const [roomExists, setRoomExists] = useState<boolean | null>(null);
   const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>([]);
   const [currentMissionAnswerIndex, setCurrentMissionAnswerIndex] = useState(0);
+  const [scores, setScores] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const roomRef = ref(database, `samevibes/rooms/${room}`);
@@ -22,8 +23,17 @@ export default function GameScreen() {
       if (snapshot.exists()) {
         const data = snapshot.val() as {
           missionAnswers: Record<string, MissionAnswer>;
+          scores: { [submitter: string]: { [scoreId: string]: number } };
         };
         setMissionAnswers(Object.values(data.missionAnswers));
+        const newScores = {} as Record<string, number>;
+        for (const [submitter, scoreBoard] of Object.entries(data.scores)) {
+          newScores[submitter] = Object.values(scoreBoard).reduce(
+            (acc, curr) => acc + curr,
+            0
+          );
+        }
+        setScores(newScores);
       }
     });
 
@@ -65,6 +75,7 @@ export default function GameScreen() {
         </div>
       </header>
       <RevealScreen
+        scores={scores}
         missionAnswers={missionAnswers}
         index={currentMissionAnswerIndex}
         onIndexChange={setCurrentMissionAnswerIndex}

@@ -32,16 +32,6 @@ export default function GameScreen() {
         scores[answer.submitter] += answer.level;
       }
 
-      for (const submitter of Object.keys(scores)) {
-        set(
-          ref(
-            database,
-            `samevibes/rooms/${room}/scores/${submitter}/${cuid()}`
-          ),
-          scores[submitter]
-        );
-      }
-
       // Avoiding a hit
       if (
         !answer.hitUser &&
@@ -68,6 +58,13 @@ export default function GameScreen() {
           true
         );
       }
+    }
+
+    for (const submitter of Object.keys(scores)) {
+      set(
+        ref(database, `samevibes/rooms/${room}/scores/${submitter}/${cuid()}`),
+        scores[submitter]
+      );
     }
 
     router.push(`/${room}/wait/surveyed`);

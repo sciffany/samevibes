@@ -379,13 +379,6 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   },
 
   {
-    id: 51,
-    verb: "would",
-    prompt: "join a cult for",
-    level1: "a food item",
-    level2: "a fictional leader",
-  },
-  {
     id: 52,
     verb: "have",
     prompt: "lied about",
@@ -517,6 +510,13 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     prompt: "accidentally revealed",
     level1: "a secret",
     level2: "an embarrassing fact",
+  },
+  {
+    id: 71,
+    verb: "would",
+    prompt: "join a cult for",
+    level1: "a food item",
+    level2: "a fictional leader",
   },
 ];
 
