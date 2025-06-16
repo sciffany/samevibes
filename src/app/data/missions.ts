@@ -331,7 +331,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 45,
     verb: "would",
-    prompt: "choose this side of thedebate",
+    prompt: "choose this side of the debate",
     level1: "a random preference",
     level2: "a moral issue",
   },

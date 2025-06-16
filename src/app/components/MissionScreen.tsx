@@ -163,7 +163,7 @@ export default function MissionScreen({
         </h3>
       </div>
       {/* Level selection */}
-      <div className='flex gap-4'>
+      {/* <div className='flex gap-4'>
         <label className='flex items-center gap-2 cursor-pointer'>
           <input
             type='radio'
@@ -188,16 +188,17 @@ export default function MissionScreen({
           />
           <span>Prompt 2</span>
         </label>
-      </div>
+      </div> */}
 
-      <b>
+      {/* <b>
         {currentAnswer.level === 1
           ? currentMission.descriptionTemplate.level1
           : currentMission.descriptionTemplate.level2}
-      </b>
+      </b> */}
       {/* Answer input */}
       <input
         type='text'
+        placeholder={`${currentMission.descriptionTemplate.level1} or ${currentMission.descriptionTemplate.level2}`}
         value={currentAnswer.answer}
         onChange={(e) =>
           updateMissionAnswer(currentMissionIndex, { answer: e.target.value })
