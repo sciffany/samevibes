@@ -179,13 +179,18 @@ function generateMissionAnswerString(missionAnswer: MissionAnswer) {
     (mission) => mission.id === missionAnswer.missionId
   ) ?? { verb: "", prompt: "", level1: "", level2: "" };
 
-  return `${joinWithAnd(
-    targets.map((target) => target.name)
-  )} ${useVerbBasedOnPlayerCount(mission?.verb, targets.length)} ${
-    mission?.prompt
-  } ${missionAnswer.answer} (${
-    missionAnswer.level === 1 ? mission?.level1 : mission?.level2
-  })`;
+  return (
+    <div>
+      <div>
+        {joinWithAnd(targets.map((target) => target.name))}{" "}
+        {useVerbBasedOnPlayerCount(mission?.verb, targets.length)}{" "}
+        {mission?.prompt} {missionAnswer.answer}
+      </div>
+      <div className='text-xs'>
+        {mission.level1} or {mission.level2}
+      </div>
+    </div>
+  );
 }
 
 function generateHitList(missionAnswer: MissionAnswer) {

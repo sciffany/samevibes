@@ -198,7 +198,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 26,
     verb: "would",
-    prompt: "but haven't watched",
+    prompt: "watch in the future",
     level1: "a movie",
     level2: "a TV show",
   },
@@ -309,10 +309,10 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   },
   {
     id: 42,
-    verb: "have",
-    prompt: "made a fool of themselves during",
-    level1: "a presentation",
-    level2: "a party",
+    verb: "would",
+    prompt: "like to play",
+    level1: "a specific game",
+    level2: "a specific genre",
   },
   {
     id: 43,
@@ -486,9 +486,9 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 67,
     verb: "would",
-    prompt: "delete some apps for",
+    prompt: "stop using her phone for",
     level1: "a reason",
-    level2: "a challenge or reward",
+    level2: "a challenge",
   },
   {
     id: 68,
@@ -549,9 +549,9 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 76,
     verb: "would",
-    prompt: "like to play",
-    level1: "a specific game",
-    level2: "a specific genre",
+    prompt: "be scared of",
+    level1: "an activity",
+    level2: "a situation",
   },
 ];
 
@@ -576,7 +576,7 @@ enum TargetType {
   AVOID = "avoid",
 }
 
-const NUM_MISSIONS = 3;
+const NUM_MISSIONS = 5;
 
 export const fisherYatesShuffle = <T>(array: T[]) => {
   for (let i = array.length - 1; i > 0; i--) {

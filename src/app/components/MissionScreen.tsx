@@ -149,7 +149,13 @@ export default function MissionScreen({
       <div>
         <h3 className='font-semibold text-md'>
           {currentMission.targets.filter((target) => target.type === "hit")
-            .length > 0
+            .length === currentMission.targets.length
+            ? "All"
+            : ""}{" "}
+          {currentMission.targets.filter((target) => target.type === "hit")
+            .length > 0 &&
+          currentMission.targets.filter((target) => target.type === "hit")
+            .length < currentMission.targets.length
             ? "Only"
             : ""}{" "}
           {joinWithAnd(

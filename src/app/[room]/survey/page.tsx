@@ -194,18 +194,21 @@ function generateQuestionFromMission(
   missionId: number,
   answer: string,
   points: number
-) {
+): React.ReactNode {
   const mission = descriptionTemplates.find(
     (mission) => mission.id === missionId
   );
+
+  if (!mission) {
+    return null;
+  }
+
   return (
-    "You " +
-    mission?.verb +
-    " " +
-    mission?.prompt +
-    " " +
-    answer +
-    " " +
-    `(${points === 1 ? mission?.level1 : mission?.level2})`
+    <div>
+      You {mission?.verb} {mission?.prompt} {answer}
+      <p className='text-xs'>
+        {mission.level1} or {mission.level2}
+      </p>
+    </div>
   );
 }
