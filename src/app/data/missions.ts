@@ -639,7 +639,7 @@ export function generateMissions(
 
 export function joinWithAnd(array: string[]) {
   if (array.length === 0) {
-    return "NONE";
+    return "NOBODY";
   }
 
   return array.length > 1

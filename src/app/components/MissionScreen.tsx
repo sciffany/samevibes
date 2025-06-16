@@ -148,7 +148,10 @@ export default function MissionScreen({
       {/* Prompt */}
       <div>
         <h3 className='font-semibold text-md'>
-          Only{" "}
+          {currentMission.targets.filter((target) => target.type === "hit")
+            .length > 0
+            ? "Only"
+            : ""}{" "}
           {joinWithAnd(
             currentMission.targets
               .filter((target) => target.type === "hit")
