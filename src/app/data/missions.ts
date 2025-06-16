@@ -594,27 +594,26 @@ export function generateMissions(
   return Array(NUM_MISSIONS)
     .fill(0)
     .map((_, index) => {
-      // Generate a random number between 1 and 2^n - 1 where n is the number of players
-      const randomNumber =
-        Math.floor(Math.random() * (2 ** Object.keys(players).length - 2)) + 1;
+      // // Generate a random number between 1 and 2^n - 1 where n is the number of players
+      // const randomNumber =
+      //   Math.floor(Math.random() * (2 ** Object.keys(players).length - 1)) + 1;
 
-      // Convert it to binary and array of 0s and 1s
-      const binaryString = randomNumber.toString(2);
+      // // Convert it to binary and array of 0s and 1s
+      // const binaryString = randomNumber.toString(2);
 
-      const binaryArray = binaryString.split("").map(Number);
+      // const binaryArray = binaryString.split("").map(Number);
 
-      // Pad the binary array with 0s to the left to make it the same length as the number of players
-      const paddedBinaryArray = Array(
-        Object.keys(players).length - binaryArray.length
-      )
-        .fill(0)
-        .concat(binaryArray);
+      // // Pad the binary array with 0s to the left to make it the same length as the number of players
+      // const paddedBinaryArray = Array(
+      //   Object.keys(players).length - binaryArray.length
+      // )
+      //   .fill(0)
+      //   .concat(binaryArray);
 
       const targets = Object.keys(players).map((player, index) => {
         return {
           name: player,
-          type:
-            paddedBinaryArray[index] === 1 ? TargetType.HIT : TargetType.AVOID,
+          type: Math.random() > 0.5 ? TargetType.HIT : TargetType.AVOID,
           vibe: players[player].vibe,
         };
       });
