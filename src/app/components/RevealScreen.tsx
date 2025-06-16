@@ -78,12 +78,12 @@ export default function RevealScreen({
             ))}
           <br />
         </h2>
-        <button
+        {/* <button
           onClick={handleEndGame}
           className='mt-4 bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
         >
           End Game
-        </button>
+        </button> */}
         {/* Mission progress dots */}
         <div className='flex justify-center space-x-2 mt-4'>
           {[...missionAnswers, {}].map((_, i) => (
@@ -148,9 +148,9 @@ export default function RevealScreen({
           {" "}
           {calculateAccuracy(currentMissionAnswer)} /{" "}
           {Object.values(currentMissionAnswer.targets).length} x{" "}
-          {currentMissionAnswer.level === 1 ? "1" : "2"} ={" "}
+          {currentMissionAnswer.level === 1 ? "5" : "5"} ={" "}
           {calculateAccuracy(currentMissionAnswer) *
-            (currentMissionAnswer.level === 1 ? 1 : 2)}{" "}
+            (currentMissionAnswer.level === 1 ? 5 : 5)}{" "}
           pts
         </p>
       </div>

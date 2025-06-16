@@ -174,7 +174,7 @@ export default function MissionScreen({
             }
             className='w-4 h-4'
           />
-          <span>+1pts</span>
+          <span>Prompt 1</span>
         </label>
         <label className='flex items-center gap-2 cursor-pointer'>
           <input
@@ -186,7 +186,7 @@ export default function MissionScreen({
             }
             className='w-4 h-4'
           />
-          <span>+2pts</span>
+          <span>Prompt 2</span>
         </label>
       </div>
 

@@ -156,7 +156,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 20,
     verb: "would",
-    prompt: "scored high on",
+    prompt: "score high on",
     level1: "a peronality trait",
     level2: "a test",
   },
@@ -233,7 +233,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 31,
     verb: "would",
-    prompt: "geek out about",
+    prompt: "talk a lot about",
     level1: "a niche interest",
     level2: "a pop culture topic",
   },
@@ -247,7 +247,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 33,
     verb: "would",
-    prompt: "rant endlessly about",
+    prompt: "rant about",
     level1: "a daily annoyance",
     level2: "a societal issue",
   },
@@ -275,9 +275,9 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 37,
     verb: "would",
-    prompt: "write a book about",
-    level1: "a life lesson",
-    level2: "a fantasy world",
+    prompt: "write an article about",
+    level1: "a specific topic",
+    level2: "an area of interest",
   },
   {
     id: 38,
@@ -305,7 +305,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     verb: "would",
     prompt: "win a game of",
     level1: "a board game",
-    level2: "a social game",
+    level2: "a sport",
   },
   {
     id: 42,
@@ -331,7 +331,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 45,
     verb: "would",
-    prompt: "get into a heated debate over",
+    prompt: "choose this side of thedebate",
     level1: "a random preference",
     level2: "a moral issue",
   },
@@ -403,7 +403,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     id: 55,
     verb: "would",
     prompt: "teach a class on",
-    level1: "a weirdly specific topic",
+    level1: "a specific topic",
     level2: "a skill",
   },
   {
@@ -416,16 +416,16 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 57,
     verb: "would",
-    prompt: "secretly judge someone for",
+    prompt: "judge someone for",
     level1: "a fashion choice",
     level2: "a conversation habit",
   },
   {
     id: 58,
-    verb: "have",
-    prompt: "tried and failed at",
-    level1: "a trend",
-    level2: "a skill",
+    verb: "would",
+    prompt: "wear",
+    level1: "an accessory",
+    level2: "a piece of clothing",
   },
   {
     id: 59,
@@ -451,9 +451,9 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 62,
     verb: "have",
-    prompt: "imitated or pretended to be",
+    prompt: "imitated",
     level1: "a fictional character",
-    level2: "a professional role",
+    level2: "a known person",
   },
   {
     id: 63,
@@ -465,29 +465,29 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 64,
     verb: "have",
-    prompt: "felt irrationally angry about",
+    prompt: "felt angry about",
     level1: "a social behavior",
-    level2: "a sound",
+    level2: "a situation",
   },
   {
     id: 65,
     verb: "would",
     prompt: "get distracted by",
-    level1: "a random object",
-    level2: "a cute animal",
+    level1: "a person",
+    level2: "a random object",
   },
   {
     id: 66,
     verb: "have",
-    prompt: "been obsessed with",
+    prompt: "liked",
     level1: "a TV character",
-    level2: "a celebrity or streamer",
+    level2: "a celebrity",
   },
   {
     id: 67,
     verb: "would",
-    prompt: "delete all social media for",
-    level1: "a peace-of-mind reason",
+    prompt: "delete some apps for",
+    level1: "a reason",
     level2: "a challenge or reward",
   },
   {
@@ -507,8 +507,8 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 70,
     verb: "have",
-    prompt: "accidentally revealed",
-    level1: "an embarrassing fact",
+    prompt: "revealed",
+    level1: "a fact",
     level2: "a secret",
   },
   {
@@ -516,14 +516,42 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     verb: "have",
     prompt: "been a victim of",
     level1: "a natural disaster",
-    level2: "a scam",
+    level2: "a situation",
   },
   {
     id: 72,
     verb: "have",
     prompt: "had a/an",
-    level1: "a household item",
-    level2: "a travel item",
+    level1: "a possession",
+    level2: "a situation",
+  },
+  {
+    id: 73,
+    verb: "would",
+    prompt: "bring to travel",
+    level1: "an item",
+    level2: "a person",
+  },
+  {
+    id: 74,
+    verb: "would",
+    prompt: "be willing to",
+    level1: "a specific activity",
+    level2: "a situation",
+  },
+  {
+    id: 75,
+    verb: "would",
+    prompt: "listen to",
+    level1: "a specific genre",
+    level2: "a specific artist",
+  },
+  {
+    id: 76,
+    verb: "would",
+    prompt: "like to play",
+    level1: "a specific game",
+    level2: "a specific genre",
   },
 ];
 

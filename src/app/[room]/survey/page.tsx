@@ -29,7 +29,7 @@ export default function GameScreen() {
         if (!scores[answer.submitter]) {
           scores[answer.submitter] = 0;
         }
-        scores[answer.submitter] += answer.level;
+        scores[answer.submitter] += 5;
       }
 
       // Avoiding a hit
@@ -44,7 +44,7 @@ export default function GameScreen() {
         if (!scores[answer.submitter]) {
           scores[answer.submitter] = 0;
         }
-        scores[answer.submitter] += answer.level;
+        scores[answer.submitter] += 5;
       }
 
       if (answer.hitUser) {
