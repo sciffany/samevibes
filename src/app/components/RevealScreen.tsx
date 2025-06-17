@@ -184,10 +184,7 @@ function generateMissionAnswerString(missionAnswer: MissionAnswer) {
       <div>
         {joinWithAnd(targets.map((target) => target.name))}{" "}
         {useVerbBasedOnPlayerCount(mission?.verb, targets.length)}{" "}
-        {mission?.prompt} {missionAnswer.answer}
-      </div>
-      <div className='text-xs'>
-        {mission.level1} or {mission.level2}
+        {mission?.prompt} <u>{missionAnswer.answer}</u>
       </div>
     </div>
   );

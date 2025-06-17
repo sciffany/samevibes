@@ -206,9 +206,6 @@ function generateQuestionFromMission(
   return (
     <div>
       You {mission?.verb} {mission?.prompt} {answer}
-      <p className='text-xs'>
-        {mission.level1} or {mission.level2}
-      </p>
     </div>
   );
 }
