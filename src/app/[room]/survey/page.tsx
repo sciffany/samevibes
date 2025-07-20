@@ -6,6 +6,7 @@ import { database } from "@/firebase";
 import { MissionAnswer } from "@/app/components/MissionScreen";
 import { descriptionTemplates, fisherYatesShuffle } from "@/app/data/missions";
 import cuid from "cuid";
+import SurveyScreen from "@/app/components/SurveyScreen";
 
 export default function GameScreen() {
   const router = useRouter();
@@ -133,79 +134,27 @@ export default function GameScreen() {
       </header>
 
       <main className='p-6 space-y-6 flex-1'>
-        <div>
-          <h2 className='font-bold text-lg text-center'>Verification Time!</h2>
+        {/* <div> */}
+        {/* <h2 className='font-bold text-lg text-center'>Verification Time!</h2>
           <p className='text-center'>
             Which of these are true about you,{" "}
             {localStorage.getItem("samevibes-name")}?
-          </p>
-        </div>
-        <hr className='border-t border-[#2e9ca9]' />
-
-        <div className='space-y-4 text-[#fdfbee] flex flex-col'>
-          {missionAnswers.map((answer, index) => (
-            <div
-              key={index}
-              className='flex items-start space-x-3 justify-between'
-            >
-              <input
-                checked={answer.hitUser}
-                onChange={(e) => {
-                  setMissionAnswers(
-                    missionAnswers.map((a) =>
-                      a.id === answer.id
-                        ? { ...a, hitUser: e.target.checked }
-                        : a
-                    )
-                  );
-                }}
-                type='checkbox'
-                id={`mission-${index}`}
-                className='mt-1 h-4 w-4 rounded border-gray-300 text-[#2e9ca9] focus:ring-[#2e9ca9]'
-              />
-              <label
-                htmlFor={`mission-${index}`}
-                className='text text-[#0d2c40] w-full'
-              >
-                {generateQuestionFromMission(
-                  answer.missionId,
-                  answer.answer,
-                  answer.level
-                )}
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <div className='flex justify-center'>
+          </p> */}
+        {/* </div> */}
+        {/* <hr className='border-t border-[#2e9ca9]' /> */}
+        <SurveyScreen
+          missionAnswers={missionAnswers}
+          setMissionAnswers={setMissionAnswers}
+        />
+        {/* <div className='flex justify-center'>
           <button
             onClick={handleContinue}
             className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
           >
             Continue
           </button>
-        </div>
+        </div> */}
       </main>
-    </div>
-  );
-}
-
-function generateQuestionFromMission(
-  missionId: number,
-  answer: string,
-  points: number
-): React.ReactNode {
-  const mission = descriptionTemplates.find(
-    (mission) => mission.id === missionId
-  );
-
-  if (!mission) {
-    return null;
-  }
-
-  return (
-    <div>
-      You {mission?.verb} {mission?.prompt} {answer}
     </div>
   );
 }

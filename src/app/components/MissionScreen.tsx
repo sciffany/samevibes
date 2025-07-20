@@ -10,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import cuid from "cuid";
 import { database } from "@/firebase";
 import { ref, set, push } from "firebase/database";
+import NopePlayerScreen from "./NopePlayerScreen";
 
 interface MissionScreenProps {
   missions: Mission[];
@@ -134,20 +135,14 @@ export default function MissionScreen({
 
   return (
     <main
-      className='max-w-md mx-auto p-6 space-y-6 flex-1'
+      className='max-w-md mx-auto p-10 space-y-6 flex-1 w-full'
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Mission */}
-      <div>
-        <h2 className='font-bold text-lg'>Mission {currentMissionIndex + 1}</h2>
-        <p>{currentMission.missionString}</p>
-      </div>
-      <hr className='border-t border-[#2e9ca9]' />
       {/* Prompt */}
       <div>
-        <h3 className='font-semibold text-md'>
+        <h3 className='font-semibold text-lg text-center'>
           {currentMission.targets.filter((target) => target.type === "hit")
             .length === currentMission.targets.length
             ? "All"
@@ -158,11 +153,21 @@ export default function MissionScreen({
             .length < currentMission.targets.length
             ? "Only"
             : ""}{" "}
-          {joinWithAnd(
-            currentMission.targets
-              .filter((target) => target.type === "hit")
-              .map((target) => target.name)
-          )}{" "}
+          {currentMission.targets.filter((target) => target.type === "hit")
+            .length === 0 && "Nobody"}{" "}
+          {/* People targets */}
+          <PlayerScreen
+            players={Object.fromEntries(
+              currentMission.targets
+                .filter((target) => target.type === "hit")
+                .map((target: Target) => {
+                  return [
+                    target.name,
+                    { name: target.name, vibe: target.vibe },
+                  ];
+                })
+            )}
+          />
           {useVerbBasedOnPlayerCount(
             currentMission.descriptionTemplate.verb,
             currentMission.targets.filter((target) => target.type === "hit")
@@ -207,7 +212,7 @@ export default function MissionScreen({
       {/* Answer input */}
       <input
         type='text'
-        placeholder={`${currentMission.descriptionTemplate.level1} or ${currentMission.descriptionTemplate.level2}`}
+        // placeholder={`${currentMission.descriptionTemplate.level1} or ${currentMission.descriptionTemplate.level2}`}
         value={currentAnswer.answer}
         onChange={(e) =>
           updateMissionAnswer(currentMissionIndex, { answer: e.target.value })
@@ -215,17 +220,16 @@ export default function MissionScreen({
         className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400'
       />
 
-      {/* People targets */}
-      <PlayerScreen
+      <NopePlayerScreen
         players={Object.fromEntries(
-          currentMission.targets.map((target) => {
-            return [
-              target.name,
-              { name: target.name, vibe: target.vibe, type: target.type },
-            ];
-          })
+          currentMission.targets
+            .filter((target) => target.type !== "hit")
+            .map((target: Target) => {
+              return [target.name, { name: target.name, vibe: target.vibe }];
+            })
         )}
       />
+
       {/* Mission progress dots */}
       <div className='flex justify-center space-x-2 mt-4'>
         {missions.map((_, index) => (

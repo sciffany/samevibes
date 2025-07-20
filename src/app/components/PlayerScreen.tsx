@@ -11,10 +11,19 @@ export default function PlayerScreen({
   playerName?: string;
 }) {
   return (
-    <div className='flex flex-col items-center justify-center py-2 gap-2 grid grid-cols-4'>
+    <div className='flex items-center justify-center py-2 gap-x-5 flex-wrap'>
       {Object.entries(players).map(([playerId, player]) => (
-        <div key={playerId} className={`flex flex-col items-center relative`}>
-          {player.wasHit && (
+        <div
+          key={playerId}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            maxWidth: 80,
+          }}
+        >
+          {/* {player.wasHit && (
             <div className='absolute top-5 left-1/2 transform -translate-x-1/2 z-10'>
               <svg
                 width='40'
@@ -42,28 +51,26 @@ export default function PlayerScreen({
                 />
               </svg>
             </div>
-          )}
-          <div className='relative'>
-            <Image
-              className={`rounded-xl ${
-                playerName && player.name === playerName
-                  ? "ring-4 ring-black rounded-xl"
-                  : ""
-              }`}
-              src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${player.vibe}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`}
-              alt={`${player.name}'s vibe`}
-              width={80}
-              height={380}
-            />
-            {player.type === "hit" && (
+          )} */}
+          <Image
+            className={`rounded-xl ${
+              playerName && player.name === playerName
+                ? "ring-4 ring-black rounded-xl"
+                : ""
+            }`}
+            src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${player.vibe}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`}
+            alt={`${player.name}'s vibe`}
+            width={200}
+            height={200}
+          />
+          {/* {player.type === "hit" && (
               <div className='absolute inset-0 flex items-center justify-center'>
                 <div className='w-[60px] h-[60px] rounded-full border-4 border-red-500 absolute'></div>
                 <div className='w-[40px] h-[40px] rounded-full border-4 border-red-500 absolute'></div>
                 <div className='w-[20px] h-[20px] rounded-full border-4 border-red-500 absolute'></div>
               </div>
-            )}
-          </div>
-          <p className='text-lg mt-2 text-[#2e9ca9] font-semibold'>
+            )} */}
+          <p className='text-lg mt-2 text-[#2e9ca9] font-semibold text-center'>
             {player.name}
           </p>
         </div>

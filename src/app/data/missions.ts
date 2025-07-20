@@ -121,7 +121,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 15,
     verb: "have",
-    prompt: "a family member",
+    prompt: "a family member that's",
     level1: "a type of person",
     level2: "a type of relationship",
   },
@@ -520,9 +520,9 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   },
   {
     id: 72,
-    verb: "have",
-    prompt: "had a/an",
-    level1: "a possession",
+    verb: "would",
+    prompt: "be scared of",
+    level1: "an activity",
     level2: "a situation",
   },
   {
@@ -545,13 +545,6 @@ export const descriptionTemplates: DescriptionTemplate[] = [
     prompt: "listen to",
     level1: "a specific genre",
     level2: "a specific artist",
-  },
-  {
-    id: 76,
-    verb: "would",
-    prompt: "be scared of",
-    level1: "an activity",
-    level2: "a situation",
   },
 ];
 
