@@ -458,7 +458,7 @@ export const descriptionTemplates: DescriptionTemplate[] = [
   {
     id: 63,
     verb: "would",
-    prompt: "hire a personal coach for",
+    prompt: "hire a coach for",
     level1: "a skill",
     level2: "a habit",
   },

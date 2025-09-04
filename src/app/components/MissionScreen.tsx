@@ -10,6 +10,8 @@ import { useParams, useRouter } from "next/navigation";
 import cuid from "cuid";
 import { database } from "@/firebase";
 import { ref, set, push } from "firebase/database";
+import NopePlayerScreen from "./NopePlayerScreen";
+import DisplayPlayerScreen from "./DisplayPlayerScreen";
 
 interface MissionScreenProps {
   missions: Mission[];
@@ -39,8 +41,6 @@ export default function MissionScreen({
 }: MissionScreenProps) {
   const router = useRouter();
   const { room } = useParams();
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const [missionAnswers, setMissionAnswers] = useState<MissionAnswer[]>([]);
 
@@ -83,35 +83,25 @@ export default function MissionScreen({
     router.push(`/${room}/wait/submitted`);
   }
 
-  // Minimum swipe distance (in px)
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && currentMissionIndex < missions.length - 1) {
+  const handleNext = () => {
+    if (currentMissionIndex < missions.length - 1) {
       onMissionChange(currentMissionIndex + 1);
     }
-    if (isRightSwipe && currentMissionIndex > 0) {
+  };
+
+  const handleBack = () => {
+    if (currentMissionIndex > 0) {
       onMissionChange(currentMissionIndex - 1);
     }
   };
 
   const currentMission = missions[currentMissionIndex];
   const currentAnswer = missionAnswers[currentMissionIndex];
+
+  // Check if all missions have answers
+  const allMissionsFilled = missionAnswers.every(
+    (answer) => answer.answer.trim() !== ""
+  );
 
   const updateMissionAnswer = (
     index: number,
@@ -133,21 +123,10 @@ export default function MissionScreen({
   }
 
   return (
-    <main
-      className='max-w-md mx-auto p-6 space-y-6 flex-1'
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* Mission */}
-      <div>
-        <h2 className='font-bold text-lg'>Mission {currentMissionIndex + 1}</h2>
-        <p>{currentMission.missionString}</p>
-      </div>
-      <hr className='border-t border-[#2e9ca9]' />
+    <main className='max-w-md mx-auto p-10 space-y-6 flex-1 w-full'>
       {/* Prompt */}
       <div>
-        <h3 className='font-semibold text-md'>
+        <h3 className='font-semibold text-lg text-center'>
           {currentMission.targets.filter((target) => target.type === "hit")
             .length === currentMission.targets.length
             ? "All"
@@ -158,11 +137,21 @@ export default function MissionScreen({
             .length < currentMission.targets.length
             ? "Only"
             : ""}{" "}
-          {joinWithAnd(
-            currentMission.targets
-              .filter((target) => target.type === "hit")
-              .map((target) => target.name)
-          )}{" "}
+          {currentMission.targets.filter((target) => target.type === "hit")
+            .length === 0 && "Nobody"}{" "}
+          {/* People targets */}
+          <DisplayPlayerScreen
+            players={Object.fromEntries(
+              currentMission.targets
+                .filter((target) => target.type === "hit")
+                .map((target: Target) => {
+                  return [
+                    target.name,
+                    { name: target.name, vibe: target.vibe },
+                  ];
+                })
+            )}
+          />
           {useVerbBasedOnPlayerCount(
             currentMission.descriptionTemplate.verb,
             currentMission.targets.filter((target) => target.type === "hit")
@@ -207,7 +196,6 @@ export default function MissionScreen({
       {/* Answer input */}
       <input
         type='text'
-        placeholder={`${currentMission.descriptionTemplate.level1} or ${currentMission.descriptionTemplate.level2}`}
         value={currentAnswer.answer}
         onChange={(e) =>
           updateMissionAnswer(currentMissionIndex, { answer: e.target.value })
@@ -215,17 +203,43 @@ export default function MissionScreen({
         className='w-full p-3 border border-gray-300 rounded-md placeholder:text-gray-400'
       />
 
-      {/* People targets */}
-      <PlayerScreen
+      <NopePlayerScreen
         players={Object.fromEntries(
-          currentMission.targets.map((target) => {
-            return [
-              target.name,
-              { name: target.name, vibe: target.vibe, type: target.type },
-            ];
-          })
+          currentMission.targets
+            .filter((target) => target.type !== "hit")
+            .map((target: Target) => {
+              return [target.name, { name: target.name, vibe: target.vibe }];
+            })
         )}
       />
+
+      {/* Navigation buttons */}
+      <div className='flex justify-between items-center mt-6'>
+        <button
+          onClick={handleBack}
+          disabled={currentMissionIndex === 0}
+          className={`px-6 py-2 rounded-full font-semibold transition-colors ${
+            currentMissionIndex === 0
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-[#2e9ca9] text-white hover:bg-[#25808a]"
+          }`}
+        >
+          Back
+        </button>
+
+        <button
+          onClick={handleNext}
+          disabled={currentMissionIndex === missions.length - 1}
+          className={`px-6 py-2 rounded-full font-semibold transition-colors ${
+            currentMissionIndex === missions.length - 1
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-[#2e9ca9] text-white hover:bg-[#25808a]"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+
       {/* Mission progress dots */}
       <div className='flex justify-center space-x-2 mt-4'>
         {missions.map((_, index) => (
@@ -237,9 +251,14 @@ export default function MissionScreen({
           />
         ))}
       </div>
-      {currentMissionIndex === missions.length - 1 && (
-        <div className='flex justify-center' onClick={handleSubmit}>
-          <button className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'>
+
+      {/* Submit button - appears below navigation when all missions are filled */}
+      {allMissionsFilled && (
+        <div className='flex justify-center mt-4'>
+          <button
+            onClick={handleSubmit}
+            className='bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
+          >
             Submit
           </button>
         </div>
