@@ -7,9 +7,9 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, perceived, actual } = await request.json();
+    const { name, perceived, negations, reality } = await request.json();
 
-    if (!perceived || !actual) {
+    if (!perceived || !negations || !reality) {
       return NextResponse.json(
         { error: "Missing perceived or actual data" },
         { status: 400 }
@@ -20,14 +20,18 @@ export async function POST(request: NextRequest) {
 
 
 PLAYER NAME: ${name}
-PERCEIVED ATTRIBUTES (what others think about this player):
+
+REALITY:
+${negations.join("\n")}
+${reality.join("\n")}
+
+WHAT FRIENDS THOUGHT:
 ${perceived.join("\n")}
 
-ACTUAL ATTRIBUTES (what this player actually did):
-${actual.join("\n")}
 
-Generate a fun, insightful, and personality-focused summary of this player's vibe and characteristics. It should be short and funny. It should start with a adjective and animal combo.`;
+Generate a fun, insightful, and personality-focused summary of this player's vibe and characteristics. It should be short and funny. It should start with a adjective and noun combo.`;
 
+    console.log(prompt);
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [

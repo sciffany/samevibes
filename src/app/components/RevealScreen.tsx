@@ -13,14 +13,15 @@ import { database } from "@/firebase";
 async function getPlayerVibeWithAi(
   name: string,
   perceived: string[],
-  actual: string[]
+  negations: string[],
+  reality: string[]
 ): Promise<{ vibe: string }> {
   const response = await fetch("/api/getPlayerVibe", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, perceived, actual }),
+    body: JSON.stringify({ name, perceived, negations, reality }),
   });
 
   if (!response.ok) {
@@ -73,7 +74,7 @@ export default function RevealScreen({
     }
   };
 
-  const generatePlayerAttributes = useEffect(() => {
+  useEffect(() => {
     const perceivedAttributes = missionAnswers.filter((mission) => {
       return mission.targets.some((target) => {
         return (
@@ -82,8 +83,19 @@ export default function RevealScreen({
         );
       });
     });
+    const actualAttributes = missionAnswers.filter((mission) => {
+      return mission.hitUsers?.hasOwnProperty(
+        localStorage.getItem("samevibes-name") ?? ""
+      );
+    });
 
-    const perceived = perceivedAttributes
+    const actualButNotPerceived = actualAttributes.filter((mission) => {
+      return !perceivedAttributes.some(
+        (p) => p.missionId === mission.missionId
+      );
+    });
+
+    const reality = actualButNotPerceived
       .map((mission) => {
         return {
           mission: descriptionTemplates.find(
@@ -96,13 +108,30 @@ export default function RevealScreen({
         return mission?.verb + " " + mission?.prompt + " " + answer;
       });
 
-    const actualAttributes = missionAnswers.filter((mission) => {
-      return mission.hitUsers?.hasOwnProperty(
-        localStorage.getItem("samevibes-name") ?? ""
-      );
+    const perceivedButNotActual = perceivedAttributes.filter((mission) => {
+      return !actualAttributes.some((p) => p.missionId === mission.missionId);
     });
 
-    const actual = actualAttributes
+    const negations = perceivedButNotActual
+      .map((mission) => {
+        return {
+          mission: descriptionTemplates.find(
+            (description) => description.id === mission.missionId
+          ),
+          answer: mission.answer,
+        };
+      })
+      .map(({ mission, answer }) => {
+        return mission?.verb + " not " + mission?.prompt + " " + answer;
+      });
+
+    const perceivedAndActualAtttributes = perceivedAttributes.filter(
+      (mission) => {
+        return actualAttributes.some((p) => p.missionId === mission.missionId);
+      }
+    );
+
+    const perceivedAndActual = perceivedAndActualAtttributes
       .map((mission) => {
         return {
           mission: descriptionTemplates.find(
@@ -117,15 +146,16 @@ export default function RevealScreen({
 
     getPlayerVibeWithAi(
       localStorage.getItem("samevibes-name") ?? "",
-      perceived,
-      actual
+      perceivedAndActual,
+      negations,
+      reality
     ).then((response) => {
       setPlayerAttributes(response.vibe);
     });
   }, [missionAnswers]);
 
   // Show congratulations screen if we're at the end
-  if (index !== missionAnswers.length) {
+  if (index === missionAnswers.length) {
     const handleEndGame = async () => {
       if (!room) return;
       await remove(ref(database, `samevibes/rooms/${room}`));
@@ -159,7 +189,7 @@ export default function RevealScreen({
           End Game
         </button> */}
         {/* Mission progress dots */}
-        <div className='flex justify-center space-x-2 mt-4'>
+        <div className='flex justify-center mt-4'>
           {[...missionAnswers, {}].map((_, i) => (
             <div
               key={i}
@@ -230,7 +260,7 @@ export default function RevealScreen({
       </div>
 
       {/* Mission progress dots */}
-      <div className='flex justify-center space-x-2 mt-4'>
+      <div className='flex justify-center mt-4'>
         {[...missionAnswers, {}].map((_, i) => (
           <div
             key={i}
