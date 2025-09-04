@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   descriptionTemplates,
   joinWithAnd,
@@ -9,6 +9,26 @@ import PlayerScreen from "./PlayerScreen";
 import { useParams, useRouter } from "next/navigation";
 import { ref, remove } from "firebase/database";
 import { database } from "@/firebase";
+
+async function getPlayerVibeWithAi(
+  name: string,
+  perceived: string[],
+  actual: string[]
+): Promise<{ vibe: string }> {
+  const response = await fetch("/api/getPlayerVibe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, perceived, actual }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get player vibe");
+  }
+
+  return response.json();
+}
 
 export default function RevealScreen({
   index,
@@ -25,6 +45,7 @@ export default function RevealScreen({
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { room } = useParams();
   const router = useRouter();
+  const [playerAttributes, setPlayerAttributes] = useState<string>("");
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
 
@@ -52,8 +73,59 @@ export default function RevealScreen({
     }
   };
 
+  const generatePlayerAttributes = useEffect(() => {
+    const perceivedAttributes = missionAnswers.filter((mission) => {
+      return mission.targets.some((target) => {
+        return (
+          target.type === "hit" &&
+          target.name === localStorage.getItem("samevibes-name")
+        );
+      });
+    });
+
+    const perceived = perceivedAttributes
+      .map((mission) => {
+        return {
+          mission: descriptionTemplates.find(
+            (description) => description.id === mission.missionId
+          ),
+          answer: mission.answer,
+        };
+      })
+      .map(({ mission, answer }) => {
+        return mission?.verb + " " + mission?.prompt + " " + answer;
+      });
+
+    const actualAttributes = missionAnswers.filter((mission) => {
+      return mission.hitUsers?.hasOwnProperty(
+        localStorage.getItem("samevibes-name") ?? ""
+      );
+    });
+
+    const actual = actualAttributes
+      .map((mission) => {
+        return {
+          mission: descriptionTemplates.find(
+            (description) => description.id === mission.missionId
+          ),
+          answer: mission.answer,
+        };
+      })
+      .map(({ mission, answer }) => {
+        return mission?.verb + " " + mission?.prompt + " " + answer;
+      });
+
+    getPlayerVibeWithAi(
+      localStorage.getItem("samevibes-name") ?? "",
+      perceived,
+      actual
+    ).then((response) => {
+      setPlayerAttributes(response.vibe);
+    });
+  }, [missionAnswers]);
+
   // Show congratulations screen if we're at the end
-  if (index === missionAnswers.length) {
+  if (index !== missionAnswers.length) {
     const handleEndGame = async () => {
       if (!room) return;
       await remove(ref(database, `samevibes/rooms/${room}`));
@@ -77,7 +149,9 @@ export default function RevealScreen({
               </p>
             ))}
           <br />
+          <p className='text-xs'>{playerAttributes}</p>
         </h2>
+
         {/* <button
           onClick={handleEndGame}
           className='mt-4 bg-[#2e9ca9] text-white px-8 py-3 rounded-full text-xl font-semibold hover:bg-[#25808a] transition-colors'
