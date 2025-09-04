@@ -190,7 +190,7 @@ export default function RevealScreen({
   }, [missionAnswers]);
 
   // Show congratulations screen if we're at the end
-  if (index !== missionAnswers.length) {
+  if (index === missionAnswers.length) {
     const handleEndGame = async () => {
       if (!room) return;
       await remove(ref(database, `samevibes/rooms/${room}`));
