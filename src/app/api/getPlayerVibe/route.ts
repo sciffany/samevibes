@@ -7,14 +7,8 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, perceived, negations, reality } = await request.json();
-
-    if (!perceived || !negations || !reality) {
-      return NextResponse.json(
-        { error: "Missing perceived or actual data" },
-        { status: 400 }
-      );
-    }
+    const { name, perceived, negations, reality, trueNegative } =
+      await request.json();
 
     const prompt = `Based on the following information about a player in a social game:
 
@@ -27,6 +21,7 @@ ${reality.join("\n")}
 
 WHAT FRIENDS THOUGHT:
 ${perceived.join("\n")}
+${trueNegative.join("\n")}
 
 
 Generate a fun, insightful, and personality-focused summary of this player's vibe and characteristics. It should be short and funny. It should start with a adjective and noun combo.`;

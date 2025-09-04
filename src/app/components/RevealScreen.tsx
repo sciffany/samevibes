@@ -14,14 +14,15 @@ async function getPlayerVibeWithAi(
   name: string,
   perceived: string[],
   negations: string[],
-  reality: string[]
+  reality: string[],
+  trueNegative: string[]
 ): Promise<{ vibe: string }> {
   const response = await fetch("/api/getPlayerVibe", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, perceived, negations, reality }),
+    body: JSON.stringify({ name, perceived, negations, reality, trueNegative }),
   });
 
   if (!response.ok) {
@@ -83,11 +84,44 @@ export default function RevealScreen({
         );
       });
     });
+
     const actualAttributes = missionAnswers.filter((mission) => {
       return mission.hitUsers?.hasOwnProperty(
         localStorage.getItem("samevibes-name") ?? ""
       );
     });
+
+    const perceivedNegatives = missionAnswers.filter((mission) => {
+      return mission.targets.some((target) => {
+        return (
+          target.type === "avoid" &&
+          target.name === localStorage.getItem("samevibes-name")
+        );
+      });
+    });
+
+    const actualNegatives = missionAnswers.filter((mission) => {
+      return !mission.hitUsers?.hasOwnProperty(
+        localStorage.getItem("samevibes-name") ?? ""
+      );
+    });
+
+    const trueNegativeAttributes = actualNegatives.filter((mission) => {
+      return perceivedNegatives.some((p) => p.missionId === mission.missionId);
+    });
+
+    const trueNegative = trueNegativeAttributes
+      .map((mission) => {
+        return {
+          mission: descriptionTemplates.find(
+            (description) => description.id === mission.missionId
+          ),
+          answer: mission.answer,
+        };
+      })
+      .map(({ mission, answer }) => {
+        return mission?.verb + " not " + mission?.prompt + " " + answer;
+      });
 
     const actualButNotPerceived = actualAttributes.filter((mission) => {
       return !perceivedAttributes.some(
@@ -148,14 +182,15 @@ export default function RevealScreen({
       localStorage.getItem("samevibes-name") ?? "",
       perceivedAndActual,
       negations,
-      reality
+      reality,
+      trueNegative
     ).then((response) => {
       setPlayerAttributes(response.vibe);
     });
   }, [missionAnswers]);
 
   // Show congratulations screen if we're at the end
-  if (index === missionAnswers.length) {
+  if (index !== missionAnswers.length) {
     const handleEndGame = async () => {
       if (!room) return;
       await remove(ref(database, `samevibes/rooms/${room}`));
