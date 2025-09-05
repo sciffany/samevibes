@@ -107,7 +107,7 @@ export default function RevealScreen({
     });
 
     const trueNegativeAttributes = actualNegatives.filter((mission) => {
-      return perceivedNegatives.some((p) => p.missionId === mission.missionId);
+      return perceivedNegatives.some((p) => p.id === mission.id);
     });
 
     const trueNegative = trueNegativeAttributes
@@ -124,9 +124,7 @@ export default function RevealScreen({
       });
 
     const actualButNotPerceived = actualAttributes.filter((mission) => {
-      return !perceivedAttributes.some(
-        (p) => p.missionId === mission.missionId
-      );
+      return !perceivedAttributes.some((p) => p.id === mission.id);
     });
 
     const reality = actualButNotPerceived
@@ -143,7 +141,7 @@ export default function RevealScreen({
       });
 
     const perceivedButNotActual = perceivedAttributes.filter((mission) => {
-      return !actualAttributes.some((p) => p.missionId === mission.missionId);
+      return !actualAttributes.some((p) => p.id === mission.id);
     });
 
     const negations = perceivedButNotActual
@@ -161,7 +159,7 @@ export default function RevealScreen({
 
     const perceivedAndActualAtttributes = perceivedAttributes.filter(
       (mission) => {
-        return actualAttributes.some((p) => p.missionId === mission.missionId);
+        return actualAttributes.some((p) => p.id === mission.id);
       }
     );
 
